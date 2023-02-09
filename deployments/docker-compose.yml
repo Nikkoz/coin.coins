@@ -21,6 +21,6 @@ services:
     ports:
       - ${DB_PORT}:5432
     expose:
-      - 5432
+      - 5433
     networks:
       - network
