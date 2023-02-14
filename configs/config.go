@@ -20,11 +20,12 @@ type (
 	}
 
 	Db struct {
-		Host     string `env:"HOST" envDefault:"localhost"`
-		Port     int16  `env:"PORT" envDefault:"5432"`
-		Name     string `env:"NAME,required"`
-		User     string `env:"USER,required"`
-		Password string `env:"PASSWORD,required"`
+		Connection string `env:"CONNECTION" envDefault:"pgsql"`
+		Host       string `env:"HOST" envDefault:"localhost"`
+		Port       int16  `env:"PORT" envDefault:"5432"`
+		Name       string `env:"NAME,required"`
+		User       string `env:"USER,required"`
+		Password   string `env:"PASSWORD,required"`
 	}
 
 	Kafka struct {
