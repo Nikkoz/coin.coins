@@ -11,6 +11,7 @@ type (
 		Kafka          Kafka          `envPrefix:"KAFKA_"`
 		Sasl           Sasl           `envPrefix:"SASL_"`
 		SchemaRegistry SchemaRegistry `envPrefix:"SR_"`
+		Log            Log            `envPrefix:"LOG_"`
 	}
 
 	App struct {
@@ -43,6 +44,10 @@ type (
 	SchemaRegistry struct {
 		Type string `env:"TYPE"`
 		Url  string `env:"URL"`
+	}
+
+	Log struct {
+		Level string `env:"LEVEL" envDefault:"debug"`
 	}
 )
 
