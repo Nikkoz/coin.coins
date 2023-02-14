@@ -11,6 +11,7 @@ require (
 )
 
 require (
+	github.com/caarlos0/env/v7 v7.0.0 // indirect
 	github.com/golang/snappy v0.0.4 // indirect
 	github.com/google/uuid v1.3.0 // indirect
 	github.com/heetch/avro v0.3.1 // indirect
