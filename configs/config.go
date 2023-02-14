@@ -22,15 +22,16 @@ type (
 	Db struct {
 		Connection string `env:"CONNECTION" envDefault:"pgsql"`
 		Host       string `env:"HOST" envDefault:"localhost"`
-		Port       int16  `env:"PORT" envDefault:"5432"`
+		Port       uint16 `env:"PORT" envDefault:"5432"`
 		Name       string `env:"NAME,required"`
 		User       string `env:"USER,required"`
 		Password   string `env:"PASSWORD,required"`
+		SslMode    bool   `env:"USE_SSL" envDefault:"false"`
 	}
 
 	Kafka struct {
 		Broker         string `env:"BROKER,required"`
-		SessionTimeout int32  `env:"SESSION_TIMEOUT" envDefault:"3000"`
+		SessionTimeout uint16 `env:"SESSION_TIMEOUT" envDefault:"3000"`
 	}
 
 	Sasl struct {
