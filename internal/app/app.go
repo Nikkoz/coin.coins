@@ -2,7 +2,7 @@ package app
 
 import (
 	"coins/configs"
-	"coins/pkg/store/postgres"
+	"coins/pkg/store"
 	"fmt"
 	"gorm.io/gorm"
 	"log"
@@ -30,7 +30,7 @@ func Run() {
 }
 
 func Connection() (*gorm.DB, func()) {
-	conn, err := postgres.NewConn(settings(config.Db))
+	conn, err := store.NewConn(settings(config.Db))
 	if err != nil {
 		log.Fatalf("db error: %v", err)
 	}
@@ -44,13 +44,14 @@ func Connection() (*gorm.DB, func()) {
 	}
 }
 
-func settings(config configs.Db) postgres.Settings {
+func settings(config configs.Db) store.Settings {
 	sslMode := "disable"
 	if config.SslMode {
 		sslMode = "enable"
 	}
 
-	return postgres.NewSettings(
+	return store.NewSettings(
+		config.Connection,
 		config.Host,
 		config.Port,
 		config.Name,

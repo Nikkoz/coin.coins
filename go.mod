@@ -12,6 +12,7 @@ require (
 
 require (
 	github.com/caarlos0/env/v7 v7.0.0 // indirect
+	github.com/go-sql-driver/mysql v1.7.0 // indirect
 	github.com/golang/snappy v0.0.4 // indirect
 	github.com/google/uuid v1.3.0 // indirect
 	github.com/heetch/avro v0.3.1 // indirect
@@ -22,4 +23,5 @@ require (
 	github.com/jinzhu/now v1.1.5 // indirect
 	golang.org/x/crypto v0.4.0 // indirect
 	golang.org/x/text v0.5.0 // indirect
+	gorm.io/driver/mysql v1.4.6 // indirect
 )

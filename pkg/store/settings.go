@@ -1,12 +1,12 @@
-package postgres
+package store
 
 import (
-	"fmt"
 	"gorm.io/gorm"
 	"gorm.io/gorm/schema"
 )
 
 type Settings struct {
+	Connection     string
 	Host           string
 	Port           uint16
 	Database       string
@@ -18,8 +18,9 @@ type Settings struct {
 	BatchSize      int
 }
 
-func NewSettings(host string, port uint16, db, user, pass, sslMode, prefix string, maxConn, batchSize int) Settings {
+func NewSettings(connection, host string, port uint16, db, user, pass, sslMode, prefix string, maxConn, batchSize int) Settings {
 	return Settings{
+		Connection:     connection,
 		Host:           host,
 		Port:           port,
 		Database:       db,
@@ -32,19 +33,7 @@ func NewSettings(host string, port uint16, db, user, pass, sslMode, prefix strin
 	}
 }
 
-func (s Settings) toDNS() string {
-	return fmt.Sprintf(
-		"host=%s port=%d user=%s password=%s dbname=%s sslmode=%s",
-		s.Host,
-		s.Port,
-		s.User,
-		s.Password,
-		s.Database,
-		s.SSLMode,
-	)
-}
-
-func (s Settings) config() *gorm.Config {
+func (s Settings) Config() *gorm.Config {
 	return &gorm.Config{
 		NamingStrategy: schema.NamingStrategy{
 			TablePrefix:   s.Prefix,
