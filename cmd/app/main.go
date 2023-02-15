@@ -1,8 +1,7 @@
 package main
 
 import (
-	"coins/configs"
-	"fmt"
+	"coins/internal/app"
 	"github.com/joho/godotenv"
 	"log"
 )
@@ -15,10 +14,5 @@ func init() {
 }
 
 func main() {
-	config, err := configs.New()
-	if err != nil {
-		log.Fatalf("unable to parse ennvironment variables: %e", err)
-	}
-
-	fmt.Println(config)
+	app.Run()
 }
