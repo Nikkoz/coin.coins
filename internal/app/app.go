@@ -23,13 +23,13 @@ func Run() {
 	// @todo: see https://github.com/evrone/go-clean-template/blob/34844d644b3cd20696b7bebbec32b0a65678ba7a/internal/app/app.go
 	//log := logger.New(config.Log.Level)
 
-	connection, conClose := Connection()
+	conn, conClose := connection()
 	defer conClose()
 
-	fmt.Println(connection)
+	Migrate(conn)
 }
 
-func Connection() (*gorm.DB, func()) {
+func connection() (*gorm.DB, func()) {
 	conn, err := store.NewConn(settings(config.Db))
 	if err != nil {
 		log.Fatalf("db error: %v", err)
