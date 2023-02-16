@@ -1,15 +1,15 @@
-package mysql
+package postgres
 
 import (
-	"coins/pkg/store"
+	"coins/pkg/store/db"
 	"fmt"
-	"gorm.io/driver/mysql"
+	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"time"
 )
 
-func NewConn(settings store.Settings) (*gorm.DB, error) {
-	connection, err := gorm.Open(mysql.Open(toDNS(settings)), settings.Config())
+func New(settings db.Settings) (*gorm.DB, error) {
+	connection, err := gorm.Open(postgres.Open(toDNS(settings)), settings.Config())
 	if err != nil {
 		_, err = fmt.Printf("Can't open connection: %v", err)
 
@@ -30,13 +30,14 @@ func NewConn(settings store.Settings) (*gorm.DB, error) {
 	return connection, nil
 }
 
-func toDNS(settings store.Settings) string {
+func toDNS(settings db.Settings) string {
 	return fmt.Sprintf(
-		"%s:%s@tcp(%s:%d)/%s",
-		settings.User,
-		settings.Password,
+		"host=%s port=%d user=%s password=%s dbname=%s sslmode=%s",
 		settings.Host,
 		settings.Port,
+		settings.User,
+		settings.Password,
 		settings.Database,
+		settings.SSLMode,
 	)
 }

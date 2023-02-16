@@ -8,7 +8,7 @@ type (
 	Config struct {
 		App            App            `envPrefix:"APP_"`
 		Db             Db             `envPrefix:"DB_"`
-		Kafka          Kafka          `envPrefix:"KAFKA_"`
+		Broker         Broker         `envPrefix:"MB_"`
 		Sasl           Sasl           `envPrefix:"SASL_"`
 		SchemaRegistry SchemaRegistry `envPrefix:"SR_"`
 		Log            Log            `envPrefix:"LOG_"`
@@ -29,7 +29,8 @@ type (
 		SslMode    bool   `env:"USE_SSL" envDefault:"false"`
 	}
 
-	Kafka struct {
+	Broker struct {
+		Connection     string `env:"CONNECTION", envDefault:"kafka"`
 		Broker         string `env:"BROKER,required"`
 		SessionTimeout uint16 `env:"SESSION_TIMEOUT" envDefault:"3000"`
 	}
