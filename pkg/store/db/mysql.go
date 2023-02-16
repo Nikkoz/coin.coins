@@ -1,15 +1,13 @@
-package postgres
+package db
 
 import (
-	"coins/pkg/store/db"
 	"fmt"
-	"gorm.io/driver/postgres"
+	driver "gorm.io/driver/mysql"
 	"gorm.io/gorm"
-	"time"
 )
 
-func New(settings db.Settings) (*gorm.DB, error) {
-	connection, err := gorm.Open(postgres.Open(toDNS(settings)), settings.Config())
+func NewMySql(settings Settings) (*gorm.DB, error) {
+	connection, err := gorm.Open(driver.Open(toDNSForMySql(settings)), settings.Config())
 	if err != nil {
 		_, err = fmt.Printf("Can't open connection: %v", err)
 
@@ -25,19 +23,18 @@ func New(settings db.Settings) (*gorm.DB, error) {
 
 	sqlDB.SetMaxIdleConns(settings.MaxConnections)
 	sqlDB.SetMaxOpenConns(settings.MaxConnections)
-	sqlDB.SetConnMaxLifetime(time.Hour)
+	sqlDB.SetConnMaxLifetime(settings.LifeTime)
 
 	return connection, nil
 }
 
-func toDNS(settings db.Settings) string {
+func toDNSForMySql(settings Settings) string {
 	return fmt.Sprintf(
-		"host=%s port=%d user=%s password=%s dbname=%s sslmode=%s",
-		settings.Host,
-		settings.Port,
+		"%s:%s@tcp(%s:%d)/%s",
 		settings.User,
 		settings.Password,
+		settings.Host,
+		settings.Port,
 		settings.Database,
-		settings.SSLMode,
 	)
 }

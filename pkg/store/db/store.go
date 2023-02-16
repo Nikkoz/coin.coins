@@ -1,8 +1,6 @@
 package db
 
 import (
-	"coins/pkg/store/db/mysql"
-	"coins/pkg/store/db/postgres"
 	"errors"
 	"gorm.io/gorm"
 )
@@ -17,9 +15,9 @@ var ErrConnectNotSupport = errors.New("type connection not supported")
 func New(settings Settings) (*gorm.DB, error) {
 	switch settings.Connection {
 	case PGSQL:
-		return postgres.New(settings)
+		return NewPgSql(settings)
 	case MYSQL:
-		return mysql.New(settings)
+		return NewMySql(settings)
 	default:
 		return nil, ErrConnectNotSupport
 	}

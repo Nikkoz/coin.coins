@@ -3,6 +3,7 @@ package db
 import (
 	"gorm.io/gorm"
 	"gorm.io/gorm/schema"
+	"time"
 )
 
 type Settings struct {
@@ -14,6 +15,7 @@ type Settings struct {
 	Password       string
 	SSLMode        string
 	MaxConnections int
+	LifeTime       time.Duration
 	Prefix         string
 	BatchSize      int
 }
@@ -29,6 +31,7 @@ func NewSettings(connection, host string, port uint16, db, user, pass, sslMode, 
 		SSLMode:        sslMode,
 		Prefix:         prefix,
 		MaxConnections: maxConn,
+		LifeTime:       time.Hour,
 		BatchSize:      batchSize,
 	}
 }
