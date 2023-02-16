@@ -50,7 +50,7 @@ func NewSettings(connection, broker string, timeout uint16, useSasl bool, saslBr
 func (settings Settings) ToKafkaConfig() (*kafka.ConfigMap, error) {
 	config := &kafka.ConfigMap{
 		"bootstrap.servers":  settings.Broker,
-		"session.timeout.ms": settings.SessionTimeout,
+		"session.timeout.ms": int(settings.SessionTimeout),
 		"enable.idempotence": true,
 		"auto.offset.reset":  "earliest",
 		"group.id":           "reader-topics",

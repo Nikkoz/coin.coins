@@ -39,6 +39,8 @@ func (d *Delivery) setOptions(options Options) {
 
 func (d *Delivery) Run(broker messageBroker.MessageBroker) error {
 	sigChan := make(chan os.Signal, 1)
+	doneChan := make(chan bool)
+
 	signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)
 
 	// @todo: продумать как указывать топики
@@ -47,7 +49,9 @@ func (d *Delivery) Run(broker messageBroker.MessageBroker) error {
 		return fmt.Errorf("can't subscribe on topics: %v\n", err)
 	}
 
-	go broker.Consume(sigChan, d.ucCoin.Consume)
+	go broker.Consume(sigChan, doneChan, d.ucCoin.Consume)
+
+	<-doneChan
 
 	return nil
 }

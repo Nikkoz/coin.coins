@@ -7,18 +7,15 @@ import (
 	repositoryStorage "coins/internal/repository/storage/database"
 	coinFactory "coins/internal/useCase/factories/coin"
 	urlFactory "coins/internal/useCase/factories/url"
+	"github.com/joho/godotenv"
 	"log"
 )
 
 var config *configs.Config
 
 func init() {
-	cfg, err := configs.New()
-	if err != nil {
-		log.Fatalf("unable to parse ennvironment variables: %e", err)
-	}
-
-	config = cfg
+	envInit()
+	configInit()
 }
 
 func Run() {
@@ -45,4 +42,20 @@ func Run() {
 	}
 
 	//Migrate(conn)
+}
+
+func envInit() {
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatalf("load environment failed: %v\n", err)
+	}
+}
+
+func configInit() {
+	cfg, err := configs.New()
+	if err != nil {
+		log.Fatalf("unable to parse ennvironment variables: %e", err)
+	}
+
+	config = cfg
 }

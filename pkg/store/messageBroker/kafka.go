@@ -49,13 +49,15 @@ func (k Kafka) Subscribe(topics []string) error {
 	return k.consumer.SubscribeTopics(topics, nil)
 }
 
-func (k Kafka) Consume(sigChan chan os.Signal, callback ConsumeFunc) {
-	for {
+func (k Kafka) Consume(sigChan chan os.Signal, doneChan chan bool, callback ConsumeFunc) {
+	running := true
+
+	for running {
 		select {
 		case sig := <-sigChan:
 			log.Printf("Caught signal %v: terminating\n", sig)
 
-			break
+			running = false
 		default:
 			ev := k.consumer.Poll(100)
 			if ev == nil {
@@ -70,11 +72,15 @@ func (k Kafka) Consume(sigChan chan os.Signal, callback ConsumeFunc) {
 				}
 			case kafka.Error:
 				log.Printf("%% Error: %v: %v\n", e.Code(), e)
+
+				running = false
 			default:
 				log.Printf("Ignored %v\n", e)
 			}
 		}
 	}
+
+	close(doneChan)
 }
 
 func (k Kafka) Close() {
