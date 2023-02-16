@@ -1,7 +1,6 @@
 package messageBroker
 
 import (
-	"coins/pkg/store/messageBroker/kafka"
 	"errors"
 )
 
@@ -15,7 +14,7 @@ var ErrConnectNotSupport = errors.New("type connection not supported")
 func New(settings Settings) (MessageBroker, error) {
 	switch settings.Connection {
 	case KAFKA:
-		return kafka.New(settings)
+		return NewKafka(settings)
 	case RABBITMQ:
 		return nil, ErrConnectNotSupport
 	default:

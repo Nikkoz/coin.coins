@@ -1,8 +1,7 @@
-package kafka
+package messageBroker
 
 import (
-	"coins/pkg/store/messageBroker"
-	"coins/pkg/store/messageBroker/kafka/avro"
+	broker "coins/pkg/store/messageBroker/serde"
 	"errors"
 	"github.com/confluentinc/confluent-kafka-go/kafka"
 	"github.com/confluentinc/confluent-kafka-go/schemaregistry/serde"
@@ -22,8 +21,8 @@ type Kafka struct {
 	deserializer *serde.Deserializer
 }
 
-func New(settings messageBroker.Settings) (messageBroker.MessageBroker, error) {
-	config, err := ConfigMap(settings)
+func NewKafka(settings Settings) (MessageBroker, error) {
+	config, err := settings.ToKafkaConfig()
 	if err != nil {
 		return nil, err
 	}
@@ -38,19 +37,19 @@ func New(settings messageBroker.Settings) (messageBroker.MessageBroker, error) {
 		return nil, err
 	}
 
-	var broker messageBroker.MessageBroker = Kafka{
+	var mb MessageBroker = Kafka{
 		consumer:     consumer,
 		deserializer: ds,
 	}
 
-	return broker, nil
+	return mb, nil
 }
 
 func (k Kafka) Subscribe(topics []string) error {
 	return k.consumer.SubscribeTopics(topics, nil)
 }
 
-func (k Kafka) Consume(sigChan chan os.Signal, callback messageBroker.ConsumeFunc) {
+func (k Kafka) Consume(sigChan chan os.Signal, callback ConsumeFunc) {
 	for {
 		select {
 		case sig := <-sigChan:
@@ -82,15 +81,15 @@ func (k Kafka) Close() {
 	k.consumer.Close()
 }
 
-func deserializer(sr messageBroker.SchemaRegistry) (*serde.Deserializer, error) {
+func deserializer(sr SchemaRegistry) (*serde.Deserializer, error) {
 	var ds serde.Deserializer
 	var err error
 
 	switch sr.Type {
 	case AVRO:
-		ds, err = avro.Deserializer(sr.Url)
+		ds, err = broker.AvroDeserializer(sr.Url)
 	case PROTOBUF:
-		return nil, ErrSchemaNotSupport
+		ds, err = broker.ProtobufDeserializer(sr.Url)
 	default:
 		return nil, ErrSchemaNotSupport
 	}
