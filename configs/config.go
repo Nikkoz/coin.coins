@@ -1,12 +1,15 @@
 package configs
 
 import (
+	"coins/configs/types/environment"
+	"coins/configs/types/logger"
 	"github.com/caarlos0/env/v7"
 )
 
 type (
 	Config struct {
 		App            App            `envPrefix:"APP_"`
+		Http           Http           `envPrefix:"HTTP_"`
 		Db             Db             `envPrefix:"DB_"`
 		Broker         Broker         `envPrefix:"MB_"`
 		Sasl           Sasl           `envPrefix:"SASL_"`
@@ -15,8 +18,14 @@ type (
 	}
 
 	App struct {
-		Name    string `env:"NAME,required"`
-		Version string `env:"VERSION,required"`
+		Name        string                  `env:"NAME,required"`
+		Version     string                  `env:"VERSION,required"`
+		Environment environment.Environment `env:"ENV" envDefault:"local"`
+	}
+
+	Http struct {
+		Host string `env:"HOST" envDefault:"localhost"`
+		Port uint16 `env:"PORT" envDefault:"8080"`
 	}
 
 	Db struct {
@@ -51,7 +60,7 @@ type (
 	}
 
 	Log struct {
-		Level string `env:"LEVEL" envDefault:"debug"`
+		Level logger.LogLevel `env:"LEVEL" envDefault:"debug"`
 	}
 )
 
