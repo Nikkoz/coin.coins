@@ -81,6 +81,8 @@ func (k Kafka) Consume(sigChan chan os.Signal, doneChan chan bool, callback Cons
 			}
 		}
 	}
+
+	close(doneChan)
 }
 
 func (k Kafka) Close() {

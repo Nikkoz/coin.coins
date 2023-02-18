@@ -3,6 +3,7 @@ package app
 import (
 	"coins/configs"
 	messageBroker "coins/internal/delivery/broker"
+	deliveryHttp "coins/internal/delivery/http"
 	repositoryBroker "coins/internal/repository/coin/broker"
 	repositoryCoin "coins/internal/repository/coin/database"
 	repositoryUrl "coins/internal/repository/url/database"
@@ -32,17 +33,21 @@ func Run() {
 	defer broker.Close()
 
 	var (
-		repoUrl    = repositoryUrl.New(conn, repositoryUrl.Options{})
-		repoCoin   = repositoryCoin.New(conn, repoUrl, repositoryCoin.Options{})
-		repoBroker = repositoryBroker.New(broker, repositoryBroker.Options{})
-		fCoin      = coinFactory.New(repoCoin, repoBroker, coinFactory.Options{})
-		fUrl       = urlFactory.New(repoUrl, urlFactory.Options{})
-		messenger  = messageBroker.New(fCoin, fUrl, messageBroker.Options{})
+		repoUrl      = repositoryUrl.New(conn, repositoryUrl.Options{})
+		repoCoin     = repositoryCoin.New(conn, repoUrl, repositoryCoin.Options{})
+		repoBroker   = repositoryBroker.New(broker, repositoryBroker.Options{})
+		fCoin        = coinFactory.New(repoCoin, repoBroker, coinFactory.Options{})
+		fUrl         = urlFactory.New(repoUrl, urlFactory.Options{})
+		messenger    = messageBroker.New(fCoin, fUrl, messageBroker.Options{})
+		listenerHttp = deliveryHttp.New(fCoin, fUrl, deliveryHttp.Options{})
 	)
 
-	err := messenger.Run(broker, config.Broker.Topics)
-	if err != nil {
+	if err := messenger.Run(broker, config.Broker.Topics); err != nil {
 		log.Fatalf("message broker error: %e", err)
+	}
+
+	if err := listenerHttp.Run(*config); err != nil {
+		log.Fatalf("http server error: %e", err)
 	}
 }
 

@@ -5,14 +5,16 @@ import (
 	"coins/pkg/types/queryParameter"
 )
 
-func (factory *Factory) Save(coin *coin.Coin) (*coin.Coin, error) {
-	// TODO implement me
-	panic("implement me")
+func (factory *Factory) Create(coin *coin.Coin) (*coin.Coin, error) {
+	return factory.adapterStorage.CreateCoin(coin)
+}
+
+func (factory *Factory) Update(coin *coin.Coin) (*coin.Coin, error) {
+	return factory.adapterStorage.UpdateCoin(coin)
 }
 
 func (factory *Factory) Delete(ID uint) error {
-	// TODO implement me
-	panic("implement me")
+	return factory.adapterStorage.DeleteCoin(ID)
 }
 
 func (factory *Factory) Upsert(coins ...*coin.Coin) error {

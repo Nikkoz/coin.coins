@@ -8,7 +8,8 @@ import (
 
 type (
 	Coin interface {
-		Save(coin *coin.Coin) (*coin.Coin, error)
+		Create(coin *coin.Coin) (*coin.Coin, error)
+		Update(coin *coin.Coin) (*coin.Coin, error)
 		Delete(ID uint) error
 		Upsert(coins ...*coin.Coin) error
 

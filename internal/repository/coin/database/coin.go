@@ -9,18 +9,23 @@ import (
 )
 
 func (r *Repository) CreateCoin(coin *coin.Coin) (*coin.Coin, error) {
-	// TODO implement me
-	panic("implement me")
+	if err := r.db.Create(&coin).Error; err != nil {
+		return nil, err
+	}
+
+	return coin, nil
 }
 
 func (r *Repository) UpdateCoin(coin *coin.Coin) (*coin.Coin, error) {
-	// TODO implement me
-	panic("implement me")
+	if err := r.db.Updates(&coin).Error; err != nil {
+		return nil, err
+	}
+
+	return coin, nil
 }
 
 func (r *Repository) DeleteCoin(ID uint) error {
-	// TODO implement me
-	panic("implement me")
+	return r.db.Delete(&coin.Coin{}, ID).Error
 }
 
 func (r *Repository) UpsertCoins(coins ...*coin.Coin) error {

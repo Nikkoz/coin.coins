@@ -5,7 +5,12 @@ import (
 	"coins/pkg/types/queryParameter"
 )
 
-func (f *Factory) Save(url *url.Url) (*url.Url, error) {
+func (f *Factory) Create(url *url.Url) (*url.Url, error) {
+	// TODO implement me
+	panic("implement me")
+}
+
+func (f *Factory) Update(url *url.Url) (*url.Url, error) {
 	// TODO implement me
 	panic("implement me")
 }

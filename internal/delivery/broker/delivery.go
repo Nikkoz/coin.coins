@@ -48,6 +48,7 @@ func (d *Delivery) Run(broker messageBroker.MessageBroker, topics []string) erro
 		return fmt.Errorf("can't subscribe on topics: %v\n", err)
 	}
 
+	fmt.Println("message broker started successfully")
 	go broker.Consume(sigChan, doneChan, d.ucCoin.Consume)
 
 	<-doneChan

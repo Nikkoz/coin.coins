@@ -56,7 +56,7 @@ func coinFromEntity(entity entities.Coin) (*coin.Coin, error) {
 		return nil, err
 	}
 
-	newCoin := coin.New(*name, *code, *icon)
+	newCoin := coin.New(*name, *code, icon)
 	newCoin.ID = uint(entity.Id)
 
 	return newCoin, nil

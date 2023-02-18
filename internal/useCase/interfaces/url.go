@@ -7,7 +7,8 @@ import (
 
 type (
 	Url interface {
-		Save(url *url.Url) (*url.Url, error)
+		Create(url *url.Url) (*url.Url, error)
+		Update(url *url.Url) (*url.Url, error)
 		Delete(ID uint) error
 		Upsert(urls ...*url.Url) error
 

@@ -19,10 +19,15 @@ type Coin struct {
 	DeletedAt gorm.DeletedAt `gorm:"index"`
 }
 
-func New(name name.Name, code code.Code, icon icon.Icon) *Coin {
-	return &Coin{
+func New(name name.Name, code code.Code, icon *icon.Icon) *Coin {
+	coin := &Coin{
 		Name: name,
 		Code: code,
-		Icon: icon,
 	}
+
+	if icon != nil {
+		coin.Icon = *icon
+	}
+
+	return coin
 }
