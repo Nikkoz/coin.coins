@@ -18,3 +18,11 @@ type Coin struct {
 
 	DeletedAt gorm.DeletedAt `gorm:"index"`
 }
+
+func New(name name.Name, code code.Code, icon icon.Icon) *Coin {
+	return &Coin{
+		Name: name,
+		Code: code,
+		Icon: icon,
+	}
+}

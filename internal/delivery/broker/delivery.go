@@ -37,14 +37,13 @@ func (d *Delivery) setOptions(options Options) {
 	}
 }
 
-func (d *Delivery) Run(broker messageBroker.MessageBroker) error {
+func (d *Delivery) Run(broker messageBroker.MessageBroker, topics []string) error {
 	sigChan := make(chan os.Signal, 1)
 	doneChan := make(chan bool)
 
 	signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)
 
-	// @todo: продумать как указывать топики
-	err := d.ucCoin.Subscribe([]string{"upload_coins"})
+	err := d.ucCoin.Subscribe(topics)
 	if err != nil {
 		return fmt.Errorf("can't subscribe on topics: %v\n", err)
 	}

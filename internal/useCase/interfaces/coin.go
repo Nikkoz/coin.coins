@@ -10,7 +10,7 @@ type (
 	Coin interface {
 		Save(coin *coin.Coin) (*coin.Coin, error)
 		Delete(ID uint) error
-		Upsert(coins ...*coin.Coin) ([]*coin.Coin, error)
+		Upsert(coins ...*coin.Coin) error
 
 		CoinReader
 		BrokerCoin
@@ -23,7 +23,7 @@ type (
 
 	BrokerCoin interface {
 		Subscribe(topics []string) error
-		Consume(deserializer *serde.Deserializer, msg any) error
-		Produce() error
+		Consume(deserializer serde.Deserializer, topic string, msg []byte) error
+		Produce(serializer *serde.Serializer, msg any) error
 	}
 )

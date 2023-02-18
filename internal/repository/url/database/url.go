@@ -3,6 +3,7 @@ package database
 import (
 	"coins/internal/domain/url"
 	"coins/pkg/types/queryParameter"
+	"gorm.io/gorm/clause"
 )
 
 func (r *Repository) CreateUrl(url *url.Url) (*url.Url, error) {
@@ -20,9 +21,14 @@ func (r *Repository) DeleteUrl(ID uint) error {
 	panic("implement me")
 }
 
-func (r *Repository) UpsertUrls(urls ...*url.Url) ([]*url.Url, error) {
-	// TODO implement me
-	panic("implement me")
+func (r *Repository) UpsertUrls(urls ...*url.Url) error {
+	return r.db.
+		Clauses(clause.OnConflict{
+			Columns:   []clause.Column{{Name: "external_id"}},
+			UpdateAll: true,
+		}).
+		Create(urls).
+		Error
 }
 
 func (r *Repository) ListUrls(parameter queryParameter.QueryParameter) ([]*url.Url, error) {

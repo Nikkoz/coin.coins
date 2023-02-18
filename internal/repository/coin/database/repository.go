@@ -1,19 +1,27 @@
 package database
 
-import "gorm.io/gorm"
+import (
+	"coins/internal/useCase/adapters/storage"
+	"gorm.io/gorm"
+)
 
 type (
 	Repository struct {
-		db      *gorm.DB
+		db *gorm.DB
+
+		repoUrl storage.Url
+
 		options Options
 	}
 
 	Options struct{}
 )
 
-func New(db *gorm.DB, options Options) *Repository {
+func New(db *gorm.DB, s storage.Url, options Options) *Repository {
 	repo := &Repository{
 		db: db,
+
+		repoUrl: s,
 	}
 
 	repo.SetOptions(options)

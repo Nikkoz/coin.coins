@@ -3,6 +3,7 @@ module coins
 go 1.19
 
 require (
+	github.com/actgardner/gogen-avro/v10 v10.2.1
 	github.com/caarlos0/env/v7 v7.0.0
 	github.com/confluentinc/confluent-kafka-go v1.9.2
 	github.com/joho/godotenv v1.5.1
@@ -13,10 +14,10 @@ require (
 )
 
 require (
-	github.com/actgardner/gogen-avro/v10 v10.2.1 // indirect
 	github.com/frankban/quicktest v1.14.3 // indirect
 	github.com/go-sql-driver/mysql v1.7.0 // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
+	github.com/golang/snappy v0.0.4 // indirect
 	github.com/google/go-cmp v0.5.9 // indirect
 	github.com/google/uuid v1.3.0 // indirect
 	github.com/heetch/avro v0.3.1 // indirect

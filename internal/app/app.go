@@ -3,8 +3,9 @@ package app
 import (
 	"coins/configs"
 	messageBroker "coins/internal/delivery/broker"
-	repositoryBroker "coins/internal/repository/broker"
-	repositoryStorage "coins/internal/repository/storage/database"
+	repositoryBroker "coins/internal/repository/coin/broker"
+	repositoryCoin "coins/internal/repository/coin/database"
+	repositoryUrl "coins/internal/repository/url/database"
 	coinFactory "coins/internal/useCase/factories/coin"
 	urlFactory "coins/internal/useCase/factories/url"
 	"github.com/joho/godotenv"
@@ -25,23 +26,24 @@ func Run() {
 	conn, conClose := connectionDB()
 	defer conClose()
 
+	migrate(conn)
+
 	broker := ConnectionBroker()
 	defer broker.Close()
 
 	var (
-		repoStorage = repositoryStorage.New(conn, repositoryStorage.Options{})
-		repoBroker  = repositoryBroker.New(broker, repositoryBroker.Options{})
-		fCoin       = coinFactory.New(repoStorage, repoBroker, coinFactory.Options{})
-		fUrl        = urlFactory.New(repoStorage, urlFactory.Options{})
-		messenger   = messageBroker.New(fCoin, fUrl, messageBroker.Options{})
+		repoUrl    = repositoryUrl.New(conn, repositoryUrl.Options{})
+		repoCoin   = repositoryCoin.New(conn, repoUrl, repositoryCoin.Options{})
+		repoBroker = repositoryBroker.New(broker, repositoryBroker.Options{})
+		fCoin      = coinFactory.New(repoCoin, repoBroker, coinFactory.Options{})
+		fUrl       = urlFactory.New(repoUrl, urlFactory.Options{})
+		messenger  = messageBroker.New(fCoin, fUrl, messageBroker.Options{})
 	)
 
-	err := messenger.Run(broker)
+	err := messenger.Run(broker, config.Broker.Topics)
 	if err != nil {
 		log.Fatalf("message broker error: %e", err)
 	}
-
-	//Migrate(conn)
 }
 
 func envInit() {

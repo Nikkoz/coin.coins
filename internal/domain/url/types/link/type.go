@@ -4,9 +4,9 @@ import (
 	"github.com/pkg/errors"
 )
 
-const MaxLength = 10
+const MaxLength = 50
 
-var ErrWrongLength = errors.Errorf("name must be less than or equal to %d characters", MaxLength)
+var ErrWrongLength = errors.Errorf("link must be less than or equal to %d characters", MaxLength)
 
 type Link string
 

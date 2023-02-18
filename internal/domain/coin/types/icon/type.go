@@ -4,7 +4,7 @@ import "github.com/pkg/errors"
 
 const MaxLength = 100
 
-var ErrWrongLength = errors.Errorf("name must be less than or equal to %d characters", MaxLength)
+var ErrWrongLength = errors.Errorf("icon path must be less than or equal to %d characters", MaxLength)
 
 type Icon string
 

@@ -30,9 +30,10 @@ type (
 	}
 
 	Broker struct {
-		Connection     string `env:"CONNECTION", envDefault:"kafka"`
-		Broker         string `env:"BROKER,required"`
-		SessionTimeout uint16 `env:"SESSION_TIMEOUT" envDefault:"3000"`
+		Connection     string   `env:"CONNECTION" envDefault:"kafka"`
+		Broker         string   `env:"BROKER,required"`
+		SessionTimeout uint16   `env:"SESSION_TIMEOUT" envDefault:"3000"`
+		Topics         []string `env:"TOPICS" envSeparator:","`
 	}
 
 	Sasl struct {

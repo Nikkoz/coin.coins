@@ -18,3 +18,11 @@ type Url struct {
 func (Url) Table() string {
 	return "coin_urls"
 }
+
+func New(externalId externalId.ExternalID, link link.Link, social socialMedia.SocialMedia) *Url {
+	return &Url{
+		ExternalID:  externalId,
+		Link:        link,
+		SocialMedia: social,
+	}
+}

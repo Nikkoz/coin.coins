@@ -45,7 +45,7 @@ func settingsDB(config configs.Db) db.Settings {
 	)
 }
 
-func Migrate(connection *gorm.DB) {
+func migrate(connection *gorm.DB) {
 	err := connection.AutoMigrate(
 		&coin.Coin{},
 		&url.Url{},

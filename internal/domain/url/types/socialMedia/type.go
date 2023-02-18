@@ -6,7 +6,7 @@ import (
 
 const MaxLength = 10
 
-var ErrWrongLength = errors.Errorf("name must be less than or equal to %d characters", MaxLength)
+var ErrWrongLength = errors.Errorf("social media type must be less than or equal to %d characters", MaxLength)
 
 type SocialMedia string
 

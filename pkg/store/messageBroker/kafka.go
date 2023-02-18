@@ -18,7 +18,7 @@ var ErrSchemaNotSupport = errors.New("schema registry type doesn't supported")
 
 type Kafka struct {
 	consumer     *kafka.Consumer
-	deserializer *serde.Deserializer
+	deserializer serde.Deserializer
 }
 
 func NewKafka(settings Settings) (MessageBroker, error) {
@@ -57,6 +57,7 @@ func (k Kafka) Consume(sigChan chan os.Signal, doneChan chan bool, callback Cons
 		case sig := <-sigChan:
 			log.Printf("Caught signal %v: terminating\n", sig)
 
+			doneChan <- true
 			running = false
 		default:
 			ev := k.consumer.Poll(100)
@@ -66,28 +67,27 @@ func (k Kafka) Consume(sigChan chan os.Signal, doneChan chan bool, callback Cons
 
 			switch e := ev.(type) {
 			case *kafka.Message:
-				err := callback(k.deserializer, e)
+				err := callback(k.deserializer, *e.TopicPartition.Topic, e.Value)
 				if err != nil {
 					log.Printf("%% Error: %v\n", err)
 				}
 			case kafka.Error:
 				log.Printf("%% Error: %v: %v\n", e.Code(), e)
 
+				doneChan <- true
 				running = false
 			default:
 				log.Printf("Ignored %v\n", e)
 			}
 		}
 	}
-
-	close(doneChan)
 }
 
 func (k Kafka) Close() {
 	k.consumer.Close()
 }
 
-func deserializer(sr SchemaRegistry) (*serde.Deserializer, error) {
+func deserializer(sr SchemaRegistry) (serde.Deserializer, error) {
 	var ds serde.Deserializer
 	var err error
 
@@ -104,5 +104,5 @@ func deserializer(sr SchemaRegistry) (*serde.Deserializer, error) {
 		return nil, err
 	}
 
-	return &ds, nil
+	return ds, nil
 }

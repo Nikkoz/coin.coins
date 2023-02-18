@@ -4,7 +4,7 @@ import "github.com/pkg/errors"
 
 const MaxLength = 50
 
-var ErrWrongLength = errors.Errorf("name must be less than or equal to %d characters", MaxLength)
+var ErrWrongLength = errors.Errorf("code must be less than or equal to %d characters", MaxLength)
 
 type Code string
 

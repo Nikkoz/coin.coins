@@ -15,7 +15,7 @@ func (f *Factory) Delete(ID uint) error {
 	panic("implement me")
 }
 
-func (f *Factory) Upsert(urls ...*url.Url) ([]*url.Url, error) {
+func (f *Factory) Upsert(urls ...*url.Url) error {
 	// TODO implement me
 	panic("implement me")
 }

@@ -9,7 +9,8 @@ type (
 	Factory struct {
 		adapterStorage storage.Coin
 		adapterBroker  broker.Coin
-		options        Options
+
+		options Options
 	}
 
 	Options struct{}

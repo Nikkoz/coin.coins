@@ -5,7 +5,7 @@ import (
 	"os"
 )
 
-type ConsumeFunc func(deserializer *serde.Deserializer, msg any) error
+type ConsumeFunc func(deserializer serde.Deserializer, topic string, msg []byte) error
 
 type MessageBroker interface {
 	Subscribe(topics []string) error

@@ -10,7 +10,7 @@ type (
 		CreateUrl(url *url.Url) (*url.Url, error)
 		UpdateUrl(url *url.Url) (*url.Url, error)
 		DeleteUrl(ID uint) error
-		UpsertUrls(urls ...*url.Url) ([]*url.Url, error)
+		UpsertUrls(urls ...*url.Url) error
 
 		UrlReader
 	}

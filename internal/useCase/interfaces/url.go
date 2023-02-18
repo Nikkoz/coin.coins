@@ -9,7 +9,7 @@ type (
 	Url interface {
 		Save(url *url.Url) (*url.Url, error)
 		Delete(ID uint) error
-		Upsert(urls ...*url.Url) ([]*url.Url, error)
+		Upsert(urls ...*url.Url) error
 
 		UrlReader
 	}
