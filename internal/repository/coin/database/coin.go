@@ -17,7 +17,7 @@ func (r *Repository) CreateCoin(coin *coin.Coin) (*coin.Coin, error) {
 }
 
 func (r *Repository) UpdateCoin(coin *coin.Coin) (*coin.Coin, error) {
-	if err := r.db.Updates(&coin).Error; err != nil {
+	if err := r.db.Model(&coin).Save(&coin).Error; err != nil {
 		return nil, err
 	}
 

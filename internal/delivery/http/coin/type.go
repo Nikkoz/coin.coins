@@ -1,8 +1,12 @@
 package coin
 
 type (
+	ID struct {
+		Value uint `json:"id" uri:"id" binding:"required"`
+	}
+
 	Response struct {
-		ID string `json:"id" binding:"required,uint"`
+		ID string `json:"id" binding:"required"`
 
 		Short
 	}
