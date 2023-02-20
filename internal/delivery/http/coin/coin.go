@@ -45,7 +45,7 @@ func (handler *Handler) Create(c *gin.Context) {
 }
 
 func (handler *Handler) Update(c *gin.Context) {
-	coinId, err := id(c)
+	coinId, err := Id(c)
 	if err != nil {
 		deliveryErr.SetError(c, http.StatusBadRequest, err)
 
@@ -72,7 +72,7 @@ func (handler *Handler) Update(c *gin.Context) {
 }
 
 func (handler *Handler) Delete(c *gin.Context) {
-	coinId, err := id(c)
+	coinId, err := Id(c)
 	if err != nil {
 		deliveryErr.SetError(c, http.StatusBadRequest, err)
 

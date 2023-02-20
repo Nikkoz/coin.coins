@@ -24,7 +24,6 @@ func (d *Delivery) initRouter(config configs.Config) {
 	router.Use(middlewares.Auth)
 
 	d.coin(router.Group("/coins"))
-	d.url(router.Group("/urls"))
 
 	d.router = router
 }
@@ -34,8 +33,10 @@ func (d *Delivery) coin(router *gin.RouterGroup) {
 	router.PUT("/:id", d.Handlers.Coin.Update)
 	router.DELETE("/:id", d.Handlers.Coin.Delete)
 	router.GET("/", d.Handlers.Coin.List)
+
+	d.url(router.Group("/:id/urls"))
 }
 
 func (d *Delivery) url(router *gin.RouterGroup) {
-
+	router.POST("/", d.Handlers.Url.Create)
 }

@@ -6,8 +6,7 @@ import (
 )
 
 func (f *Factory) Create(url *url.Url) (*url.Url, error) {
-	// TODO implement me
-	panic("implement me")
+	return f.adapterStorage.CreateUrl(url)
 }
 
 func (f *Factory) Update(url *url.Url) (*url.Url, error) {

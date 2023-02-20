@@ -78,5 +78,5 @@ func urlFromEntity(entity entities.Url) (*coinUrl.Url, error) {
 		return nil, err
 	}
 
-	return coinUrl.New(*externalId, *link, *social), nil
+	return coinUrl.New(externalId, *link, *social), nil
 }

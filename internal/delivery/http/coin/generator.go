@@ -8,7 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func id(c *gin.Context) (*ID, error) {
+func Id(c *gin.Context) (*ID, error) {
 	id := &ID{}
 	if err := c.ShouldBindUri(&id); err != nil {
 		return nil, err
