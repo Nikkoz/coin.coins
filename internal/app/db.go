@@ -46,11 +46,13 @@ func settingsDB(config configs.Db) db.Settings {
 }
 
 func migrate(connection *gorm.DB) {
-	err := connection.AutoMigrate(
-		&coin.Coin{},
-		&url.Url{},
-	)
+	err := url.Migrate(connection)
 	if err != nil {
-		log.Fatalf("Error init models: %v\n", err)
+		log.Fatalf("error init models: %v\n", err)
+	}
+
+	err = coin.Migrate(connection)
+	if err != nil {
+		log.Fatalf("error init models: %v\n", err)
 	}
 }
