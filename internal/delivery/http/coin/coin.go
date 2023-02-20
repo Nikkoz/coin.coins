@@ -2,14 +2,19 @@ package coin
 
 import (
 	deliveryErr "coins/internal/delivery/http/error"
-	domain "coins/internal/domain/coin"
-	"coins/internal/domain/coin/types/code"
-	"coins/internal/domain/coin/types/name"
 	useCase "coins/internal/useCase/interfaces"
-	"fmt"
+	"coins/pkg/types/pagination"
+	"coins/pkg/types/query"
+	"coins/pkg/types/queryParameter"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
+
+var mappingSort = query.SortsOptions{
+	"id":   {},
+	"name": {},
+	"code": {},
+}
 
 type Handler struct {
 	useCase useCase.Coin
@@ -84,30 +89,35 @@ func (handler *Handler) Delete(c *gin.Context) {
 	c.Status(http.StatusNoContent)
 }
 
-func id(c *gin.Context) (*ID, error) {
-	id := &ID{}
-	if err := c.ShouldBindUri(&id); err != nil {
-		return nil, err
-	}
-
-	return id, nil
-}
-
-func newCoin(c *gin.Context) (*domain.Coin, error) {
-	coin := Short{}
-	if err := c.ShouldBindJSON(&coin); err != nil {
-		return nil, fmt.Errorf("payload is not correct, Error: %w", err)
-	}
-
-	coinName, err := name.New(coin.Name)
+func (handler *Handler) List(c *gin.Context) {
+	params, err := query.Parse(c, query.Options{
+		Sorts: mappingSort,
+	})
 	if err != nil {
-		return nil, err
+		deliveryErr.SetError(c, http.StatusBadRequest, err)
+
+		return
 	}
 
-	coinCode, err := code.New(coin.Code)
+	coins, err := handler.useCase.List(queryParameter.QueryParameter{
+		Sorts: params.Sorts,
+		Pagination: pagination.Pagination{
+			Limit:  params.Limit,
+			Offset: params.Offset,
+		},
+	})
 	if err != nil {
-		return nil, err
+		deliveryErr.SetError(c, http.StatusInternalServerError, err)
+
+		return
 	}
 
-	return domain.New(*coinName, *coinCode, nil), nil
+	count, err := handler.useCase.Count()
+	if err != nil {
+		deliveryErr.SetError(c, http.StatusInternalServerError, err)
+
+		return
+	}
+
+	c.JSON(http.StatusOK, ToListResponse(count, *params, coins))
 }

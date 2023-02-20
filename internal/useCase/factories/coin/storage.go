@@ -22,11 +22,9 @@ func (factory *Factory) Upsert(coins ...*coin.Coin) error {
 }
 
 func (factory *Factory) List(parameter queryParameter.QueryParameter) ([]*coin.Coin, error) {
-	// TODO implement me
-	panic("implement me")
+	return factory.adapterStorage.ListCoins(parameter)
 }
 
 func (factory *Factory) Count( /*Тут можно передавать фильтр*/ ) (uint64, error) {
-	// TODO implement me
-	panic("implement me")
+	return factory.adapterStorage.CountCoins()
 }

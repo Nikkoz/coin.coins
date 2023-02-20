@@ -3,10 +3,17 @@ package database
 import (
 	"coins/internal/domain/coin"
 	"coins/internal/domain/url"
+	"coins/pkg/types/columnCode"
 	"coins/pkg/types/queryParameter"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 )
+
+var mappingSort = map[columnCode.ColumnCode]string{
+	"id":   "id",
+	"name": "name",
+	"code": "code",
+}
 
 func (r *Repository) CreateCoin(coin *coin.Coin) (*coin.Coin, error) {
 	if err := r.db.Create(&coin).Error; err != nil {
@@ -49,13 +56,39 @@ func (r *Repository) UpsertCoins(coins ...*coin.Coin) error {
 }
 
 func (r *Repository) ListCoins(parameter queryParameter.QueryParameter) ([]*coin.Coin, error) {
-	// TODO implement me
-	panic("implement me")
+	var coins []*coin.Coin
+
+	builder := r.db.Model(&coins)
+
+	if len(parameter.Sorts) > 0 {
+		for _, value := range parameter.Sorts.Parsing(mappingSort) {
+			if value == "" {
+				continue
+			}
+
+			builder = builder.Order(value)
+		}
+	}
+
+	if parameter.Pagination.Limit > 0 {
+		builder = builder.Limit(int(parameter.Pagination.Limit))
+	}
+
+	if parameter.Pagination.Offset > 0 {
+		builder = builder.Offset(int(parameter.Pagination.Offset))
+	}
+
+	result := builder.Find(&coins)
+
+	return coins, result.Error
 }
 
 func (r *Repository) CountCoins( /*Тут можно передавать фильтр*/ ) (uint64, error) {
-	// TODO implement me
-	panic("implement me")
+	var count int64
+
+	result := r.db.Model(&coin.Coin{}).Count(&count)
+
+	return uint64(count), result.Error
 }
 
 func (r *Repository) saveAssociations(coins ...*coin.Coin) error {
