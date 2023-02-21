@@ -10,8 +10,7 @@ func (f *Factory) Create(url *url.Url) (*url.Url, error) {
 }
 
 func (f *Factory) Update(url *url.Url) (*url.Url, error) {
-	// TODO implement me
-	panic("implement me")
+	return f.adapterStorage.UpdateUrl(url)
 }
 
 func (f *Factory) Delete(ID uint) error {

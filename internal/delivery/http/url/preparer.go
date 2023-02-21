@@ -1,12 +1,39 @@
 package url
 
 import (
+	"coins/internal/delivery/http/coin"
 	domain "coins/internal/domain/url"
 	"coins/internal/domain/url/types/link"
 	"coins/internal/domain/url/types/socialMedia"
 	"fmt"
 	"github.com/gin-gonic/gin"
 )
+
+// prepare generates data about the model
+func prepare(c *gin.Context, setUrlId bool) (*domain.Url, error) {
+	coinId, err := coin.Id(c)
+	if err != nil {
+		return nil, err
+	}
+
+	url, err := newUrl(c)
+	if err != nil {
+		return nil, err
+	}
+
+	if setUrlId {
+		urlId, err := id(c)
+		if err != nil {
+			return nil, err
+		}
+
+		url.ID = urlId.Value
+	}
+
+	url.CoinID = coinId.Value
+
+	return url, nil
+}
 
 func id(c *gin.Context) (*ID, error) {
 	id := &ID{}

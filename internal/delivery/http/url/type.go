@@ -2,7 +2,7 @@ package url
 
 type (
 	ID struct {
-		Value uint `json:"id" uri:"id" binding:"required"`
+		Value uint `json:"id" uri:"urlId" binding:"required"`
 	}
 
 	Response struct {

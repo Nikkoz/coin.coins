@@ -15,8 +15,11 @@ func (r *Repository) CreateUrl(url *url.Url) (*url.Url, error) {
 }
 
 func (r *Repository) UpdateUrl(url *url.Url) (*url.Url, error) {
-	// TODO implement me
-	panic("implement me")
+	if err := r.db.Model(&url).Save(&url).Error; err != nil {
+		return nil, err
+	}
+
+	return url, nil
 }
 
 func (r *Repository) DeleteUrl(ID uint) error {
