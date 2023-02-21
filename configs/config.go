@@ -9,6 +9,7 @@ import (
 type (
 	Config struct {
 		App            App            `envPrefix:"APP_"`
+		Auth           Auth           `envPrefix:"AUTH_"`
 		Http           Http           `envPrefix:"HTTP_"`
 		Db             Db             `envPrefix:"DB_"`
 		Broker         Broker         `envPrefix:"MB_"`
@@ -21,6 +22,10 @@ type (
 		Name        string                  `env:"NAME,required"`
 		Version     string                  `env:"VERSION,required"`
 		Environment environment.Environment `env:"ENV" envDefault:"local"`
+	}
+
+	Auth struct {
+		Token string `env:"TOKEN,required"`
 	}
 
 	Http struct {

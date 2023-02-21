@@ -21,7 +21,7 @@ func (d *Delivery) initRouter(config configs.Config) {
 
 	router := gin.New()
 
-	router.Use(middlewares.Auth)
+	router.Use(middlewares.Auth(config.Auth))
 
 	d.coins(router.Group("/coins"))
 
