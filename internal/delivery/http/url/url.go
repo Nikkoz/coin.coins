@@ -2,6 +2,7 @@ package url
 
 import (
 	"coins/internal/delivery/http/actions"
+	"coins/internal/delivery/http/coin"
 	deliveryErr "coins/internal/delivery/http/error"
 	domain "coins/internal/domain/url"
 	useCase "coins/internal/useCase/interfaces"
@@ -35,6 +36,31 @@ func (handler *Handler) Update(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, ToResponse(response))
+}
+
+func (handler *Handler) Delete(c *gin.Context) {
+	coinId, err := coin.Id(c)
+	if err != nil {
+		deliveryErr.SetError(c, http.StatusBadRequest, err)
+
+		return
+	}
+
+	urlId, err := id(c)
+	if err != nil {
+		deliveryErr.SetError(c, http.StatusBadRequest, err)
+
+		return
+	}
+
+	err = handler.useCase.Delete(urlId.Value, coinId.Value)
+	if err != nil {
+		deliveryErr.SetError(c, http.StatusInternalServerError, err)
+
+		return
+	}
+
+	c.Status(http.StatusNoContent)
 }
 
 func (handler *Handler) save(c *gin.Context, action actions.Action) *domain.Url {

@@ -16,6 +16,7 @@ type (
 	}
 
 	UrlReader interface {
+		UrlById(ID uint) (*url.Url, error)
 		ListUrls(parameter queryParameter.QueryParameter) ([]*url.Url, error)
 		CountUrls( /*Тут можно передавать фильтр*/ ) (uint64, error)
 	}

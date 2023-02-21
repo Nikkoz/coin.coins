@@ -1,12 +1,12 @@
 package database
 
 import (
-	"coins/internal/domain/url"
+	domain "coins/internal/domain/url"
 	"coins/pkg/types/queryParameter"
 	"gorm.io/gorm/clause"
 )
 
-func (r *Repository) CreateUrl(url *url.Url) (*url.Url, error) {
+func (r *Repository) CreateUrl(url *domain.Url) (*domain.Url, error) {
 	if err := r.db.Create(&url).Error; err != nil {
 		return nil, err
 	}
@@ -14,7 +14,7 @@ func (r *Repository) CreateUrl(url *url.Url) (*url.Url, error) {
 	return url, nil
 }
 
-func (r *Repository) UpdateUrl(url *url.Url) (*url.Url, error) {
+func (r *Repository) UpdateUrl(url *domain.Url) (*domain.Url, error) {
 	if err := r.db.Model(&url).Save(&url).Error; err != nil {
 		return nil, err
 	}
@@ -23,11 +23,10 @@ func (r *Repository) UpdateUrl(url *url.Url) (*url.Url, error) {
 }
 
 func (r *Repository) DeleteUrl(ID uint) error {
-	// TODO implement me
-	panic("implement me")
+	return r.db.Delete(&domain.Url{}, ID).Error
 }
 
-func (r *Repository) UpsertUrls(urls ...*url.Url) error {
+func (r *Repository) UpsertUrls(urls ...*domain.Url) error {
 	return r.db.
 		Clauses(clause.OnConflict{
 			Columns:   []clause.Column{{Name: "external_id"}},
@@ -37,7 +36,15 @@ func (r *Repository) UpsertUrls(urls ...*url.Url) error {
 		Error
 }
 
-func (r *Repository) ListUrls(parameter queryParameter.QueryParameter) ([]*url.Url, error) {
+func (r *Repository) UrlById(ID uint) (*domain.Url, error) {
+	var url *domain.Url
+
+	result := r.db.First(&url, ID)
+
+	return url, result.Error
+}
+
+func (r *Repository) ListUrls(parameter queryParameter.QueryParameter) ([]*domain.Url, error) {
 	// TODO implement me
 	panic("implement me")
 }

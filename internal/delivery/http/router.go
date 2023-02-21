@@ -40,4 +40,5 @@ func (d *Delivery) coin(router *gin.RouterGroup) {
 func (d *Delivery) url(router *gin.RouterGroup) {
 	router.POST("/", d.Handlers.Url.Create)
 	router.PUT("/:urlId", d.Handlers.Url.Update)
+	router.DELETE("/:urlId", d.Handlers.Url.Delete)
 }
