@@ -23,22 +23,33 @@ func (d *Delivery) initRouter(config configs.Config) {
 
 	router.Use(middlewares.Auth)
 
-	d.coin(router.Group("/coins"))
+	d.coins(router.Group("/coins"))
 
 	d.router = router
 }
 
-func (d *Delivery) coin(router *gin.RouterGroup) {
+func (d *Delivery) coins(router *gin.RouterGroup) {
 	router.POST("/", d.Handlers.Coin.Create)
-	router.PUT("/:id", d.Handlers.Coin.Update)
-	router.DELETE("/:id", d.Handlers.Coin.Delete)
 	router.GET("/", d.Handlers.Coin.List)
 
-	d.url(router.Group("/:id/urls"))
+	d.coin(router.Group("/:id"))
+}
+
+func (d *Delivery) coin(router *gin.RouterGroup) {
+	router.PUT("/", d.Handlers.Coin.Update)
+	router.DELETE("/", d.Handlers.Coin.Delete)
+
+	d.urls(router.Group("/urls"))
+}
+
+func (d *Delivery) urls(router *gin.RouterGroup) {
+	router.GET("/", d.Handlers.Url.List)
+	router.POST("/", d.Handlers.Url.Create)
+
+	d.url(router.Group("/:urlId"))
 }
 
 func (d *Delivery) url(router *gin.RouterGroup) {
-	router.POST("/", d.Handlers.Url.Create)
-	router.PUT("/:urlId", d.Handlers.Url.Update)
-	router.DELETE("/:urlId", d.Handlers.Url.Delete)
+	router.PUT("/", d.Handlers.Url.Update)
+	router.DELETE("/", d.Handlers.Url.Delete)
 }

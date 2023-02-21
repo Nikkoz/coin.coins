@@ -35,12 +35,10 @@ func (f *Factory) ById(ID uint) (*domain.Url, error) {
 	return f.adapterStorage.UrlById(ID)
 }
 
-func (f *Factory) List(parameter queryParameter.QueryParameter) ([]*domain.Url, error) {
-	// TODO implement me
-	panic("implement me")
+func (f *Factory) List(coinId uint, parameter queryParameter.QueryParameter) ([]*domain.Url, error) {
+	return f.adapterStorage.ListUrls(coinId, parameter)
 }
 
-func (f *Factory) Count( /*Тут можно передавать фильтр*/ ) (uint64, error) {
-	// TODO implement me
-	panic("implement me")
+func (f *Factory) Count(coinId uint /*Тут можно передавать фильтр*/) (uint64, error) {
+	return f.adapterStorage.CountUrls(coinId)
 }

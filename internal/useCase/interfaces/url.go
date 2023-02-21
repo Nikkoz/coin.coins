@@ -17,7 +17,7 @@ type (
 
 	UrlReader interface {
 		ById(ID uint) (*url.Url, error)
-		List(parameter queryParameter.QueryParameter) ([]*url.Url, error)
-		Count( /*Тут можно передавать фильтр*/ ) (uint64, error)
+		List(coinId uint, parameter queryParameter.QueryParameter) ([]*url.Url, error)
+		Count(coinId uint /*Тут можно передавать фильтр*/) (uint64, error)
 	}
 )

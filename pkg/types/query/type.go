@@ -7,10 +7,9 @@ import (
 
 type (
 	Query struct {
-		Sorts  sort.Sorts
-		Page   uint64
-		Limit  uint64
-		Offset uint64
+		Sorts sort.Sorts
+		Page  uint64
+		Limit uint64
 	}
 
 	SortOptions struct {
@@ -41,12 +40,11 @@ func Parse(c *gin.Context, options Options) (*Query, error) {
 		return nil, err
 	}
 
-	page, limit, offset := parsePagination(c.Query(limitKey), c.Query(pageKey))
+	page, limit := parsePagination(c.Query(limitKey), c.Query(pageKey))
 
 	return &Query{
-		Sorts:  sorts,
-		Page:   page,
-		Limit:  limit,
-		Offset: offset,
+		Sorts: sorts,
+		Page:  page,
+		Limit: limit,
 	}, nil
 }

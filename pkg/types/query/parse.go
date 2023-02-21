@@ -41,16 +41,15 @@ func parseSorts(sorts map[string]string, options SortsOptions) (sort.Sorts, erro
 	return result, nil
 }
 
-func parsePagination(strLimit, strPage string) (uint64, uint64, uint64) {
+func parsePagination(strLimit, strPage string) (uint64, uint64) {
 	page, err := strconv.ParseUint(strPage, 10, 64)
 	if err != nil {
 		page = 1
 	}
 
 	limit := parseLimit(strLimit)
-	offset := (page - 1) * limit
 
-	return page, limit, offset
+	return page, limit
 }
 
 func parseLimit(value string) uint64 {

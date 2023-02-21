@@ -3,6 +3,7 @@ package database
 import (
 	"coins/internal/domain/coin"
 	"coins/internal/domain/url"
+	"coins/pkg/store/db/scoupes"
 	"coins/pkg/types/columnCode"
 	"coins/pkg/types/queryParameter"
 	"gorm.io/gorm"
@@ -70,15 +71,12 @@ func (r *Repository) ListCoins(parameter queryParameter.QueryParameter) ([]*coin
 		}
 	}
 
-	if parameter.Pagination.Limit > 0 {
-		builder = builder.Limit(int(parameter.Pagination.Limit))
-	}
-
-	if parameter.Pagination.Offset > 0 {
-		builder = builder.Offset(int(parameter.Pagination.Offset))
-	}
-
-	result := builder.Find(&coins)
+	result := builder.
+		Scopes(scoupes.Paginate(
+			parameter.Pagination.Limit,
+			parameter.Pagination.Page,
+		)).
+		Find(&coins)
 
 	return coins, result.Error
 }

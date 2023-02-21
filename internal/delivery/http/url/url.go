@@ -6,9 +6,17 @@ import (
 	deliveryErr "coins/internal/delivery/http/error"
 	domain "coins/internal/domain/url"
 	useCase "coins/internal/useCase/interfaces"
+	"coins/pkg/types/pagination"
+	"coins/pkg/types/query"
+	"coins/pkg/types/queryParameter"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
+
+var mappingSort = query.SortsOptions{
+	"id":   {},
+	"type": {},
+}
 
 type Handler struct {
 	useCase useCase.Url
@@ -61,6 +69,46 @@ func (handler *Handler) Delete(c *gin.Context) {
 	}
 
 	c.Status(http.StatusNoContent)
+}
+
+func (handler *Handler) List(c *gin.Context) {
+	coinId, err := coin.Id(c)
+	if err != nil {
+		deliveryErr.SetError(c, http.StatusBadRequest, err)
+
+		return
+	}
+
+	params, err := query.Parse(c, query.Options{
+		Sorts: mappingSort,
+	})
+	if err != nil {
+		deliveryErr.SetError(c, http.StatusBadRequest, err)
+
+		return
+	}
+
+	urls, err := handler.useCase.List(coinId.Value, queryParameter.QueryParameter{
+		Sorts: params.Sorts,
+		Pagination: pagination.Pagination{
+			Limit: params.Limit,
+			Page:  params.Page,
+		},
+	})
+	if err != nil {
+		deliveryErr.SetError(c, http.StatusInternalServerError, err)
+
+		return
+	}
+
+	count, err := handler.useCase.Count(coinId.Value)
+	if err != nil {
+		deliveryErr.SetError(c, http.StatusInternalServerError, err)
+
+		return
+	}
+
+	c.JSON(http.StatusOK, ToListResponse(count, *params, urls))
 }
 
 func (handler *Handler) save(c *gin.Context, action actions.Action) *domain.Url {

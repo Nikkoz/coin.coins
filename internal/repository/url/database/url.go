@@ -2,9 +2,16 @@ package database
 
 import (
 	domain "coins/internal/domain/url"
+	"coins/pkg/store/db/scoupes"
+	"coins/pkg/types/columnCode"
 	"coins/pkg/types/queryParameter"
 	"gorm.io/gorm/clause"
 )
+
+var mappingSort = map[columnCode.ColumnCode]string{
+	"id":   "id",
+	"type": "type",
+}
 
 func (r *Repository) CreateUrl(url *domain.Url) (*domain.Url, error) {
 	if err := r.db.Create(&url).Error; err != nil {
@@ -44,12 +51,37 @@ func (r *Repository) UrlById(ID uint) (*domain.Url, error) {
 	return url, result.Error
 }
 
-func (r *Repository) ListUrls(parameter queryParameter.QueryParameter) ([]*domain.Url, error) {
-	// TODO implement me
-	panic("implement me")
+func (r *Repository) ListUrls(coinId uint, parameter queryParameter.QueryParameter) ([]*domain.Url, error) {
+	var urls []*domain.Url
+
+	builder := r.db.Model(&urls)
+
+	if len(parameter.Sorts) > 0 {
+		for _, value := range parameter.Sorts.Parsing(mappingSort) {
+			if value == "" {
+				continue
+			}
+
+			builder = builder.Order(value)
+		}
+	}
+
+	result := builder.
+		Where(&domain.Url{CoinID: coinId}).
+		Scopes(scoupes.Paginate(
+			parameter.Pagination.Limit,
+			parameter.Pagination.Page,
+		)).
+		Find(&urls)
+
+	return urls, result.Error
 }
 
-func (r *Repository) CountUrls( /*Тут можно передавать фильтр*/ ) (uint64, error) {
-	// TODO implement me
-	panic("implement me")
+func (r *Repository) CountUrls(coinId uint /*Тут можно передавать фильтр*/) (uint64, error) {
+	var count int64
+	url := domain.Url{CoinID: coinId}
+
+	result := r.db.Model(&url).Where(&url).Count(&count)
+
+	return uint64(count), result.Error
 }

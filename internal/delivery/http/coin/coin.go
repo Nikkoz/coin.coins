@@ -77,8 +77,8 @@ func (handler *Handler) List(c *gin.Context) {
 	coins, err := handler.useCase.List(queryParameter.QueryParameter{
 		Sorts: params.Sorts,
 		Pagination: pagination.Pagination{
-			Limit:  params.Limit,
-			Offset: params.Offset,
+			Limit: params.Limit,
+			Page:  params.Page,
 		},
 	})
 	if err != nil {
