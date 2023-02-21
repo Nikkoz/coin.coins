@@ -1,7 +1,9 @@
 package coin
 
 import (
+	"coins/internal/delivery/http/actions"
 	deliveryErr "coins/internal/delivery/http/error"
+	domain "coins/internal/domain/coin"
 	useCase "coins/internal/useCase/interfaces"
 	"coins/pkg/types/pagination"
 	"coins/pkg/types/query"
@@ -27,17 +29,8 @@ func New(uc useCase.Coin) *Handler {
 }
 
 func (handler *Handler) Create(c *gin.Context) {
-	coin, err := newCoin(c)
-	if err != nil {
-		deliveryErr.SetError(c, http.StatusBadRequest, err)
-
-		return
-	}
-
-	response, err := handler.useCase.Create(coin)
-	if err != nil {
-		deliveryErr.SetError(c, http.StatusInternalServerError, err)
-
+	response := handler.save(c, actions.Create)
+	if response == nil {
 		return
 	}
 
@@ -45,26 +38,8 @@ func (handler *Handler) Create(c *gin.Context) {
 }
 
 func (handler *Handler) Update(c *gin.Context) {
-	coinId, err := Id(c)
-	if err != nil {
-		deliveryErr.SetError(c, http.StatusBadRequest, err)
-
-		return
-	}
-
-	coin, err := newCoin(c)
-	if err != nil {
-		deliveryErr.SetError(c, http.StatusBadRequest, err)
-
-		return
-	}
-
-	coin.ID = coinId.Value
-
-	response, err := handler.useCase.Update(coin)
-	if err != nil {
-		deliveryErr.SetError(c, http.StatusInternalServerError, err)
-
+	response := handler.save(c, actions.Update)
+	if response == nil {
 		return
 	}
 
@@ -120,4 +95,30 @@ func (handler *Handler) List(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, ToListResponse(count, *params, coins))
+}
+
+func (handler *Handler) save(c *gin.Context, action actions.Action) *domain.Coin {
+	coin, err := prepare(c, action == actions.Update)
+	if err != nil {
+		deliveryErr.SetError(c, http.StatusBadRequest, err)
+
+		return nil
+	}
+
+	var response *domain.Coin
+
+	switch action {
+	case actions.Create:
+		response, err = handler.useCase.Create(coin)
+	case actions.Update:
+		response, err = handler.useCase.Update(coin)
+	}
+
+	if err != nil {
+		deliveryErr.SetError(c, http.StatusInternalServerError, err)
+
+		return nil
+	}
+
+	return response
 }

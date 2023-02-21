@@ -1,6 +1,7 @@
 package url
 
 import (
+	"coins/internal/delivery/http/actions"
 	deliveryErr "coins/internal/delivery/http/error"
 	domain "coins/internal/domain/url"
 	useCase "coins/internal/useCase/interfaces"
@@ -18,15 +19,8 @@ func New(uc useCase.Url) *Handler {
 	}
 }
 
-type action string
-
-const (
-	Create action = "create"
-	Update action = "update"
-)
-
 func (handler *Handler) Create(c *gin.Context) {
-	response := handler.save(c, Create)
+	response := handler.save(c, actions.Create)
 	if response == nil {
 		return
 	}
@@ -35,7 +29,7 @@ func (handler *Handler) Create(c *gin.Context) {
 }
 
 func (handler *Handler) Update(c *gin.Context) {
-	response := handler.save(c, Update)
+	response := handler.save(c, actions.Update)
 	if response == nil {
 		return
 	}
@@ -43,8 +37,8 @@ func (handler *Handler) Update(c *gin.Context) {
 	c.JSON(http.StatusOK, ToResponse(response))
 }
 
-func (handler *Handler) save(c *gin.Context, action action) *domain.Url {
-	u, err := prepare(c, action == Update)
+func (handler *Handler) save(c *gin.Context, action actions.Action) *domain.Url {
+	url, err := prepare(c, action == actions.Update)
 	if err != nil {
 		deliveryErr.SetError(c, http.StatusBadRequest, err)
 
@@ -54,10 +48,10 @@ func (handler *Handler) save(c *gin.Context, action action) *domain.Url {
 	var response *domain.Url
 
 	switch action {
-	case Create:
-		response, err = handler.useCase.Create(u)
-	case Update:
-		response, err = handler.useCase.Update(u)
+	case actions.Create:
+		response, err = handler.useCase.Create(url)
+	case actions.Update:
+		response, err = handler.useCase.Update(url)
 	}
 
 	if err != nil {

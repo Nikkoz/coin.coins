@@ -8,6 +8,24 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+func prepare(c *gin.Context, setCoinId bool) (*domain.Coin, error) {
+	coin, err := newCoin(c)
+	if err != nil {
+		return nil, err
+	}
+
+	if setCoinId {
+		coinId, err := Id(c)
+		if err != nil {
+			return nil, err
+		}
+
+		coin.ID = coinId.Value
+	}
+
+	return coin, nil
+}
+
 func Id(c *gin.Context) (*ID, error) {
 	id := &ID{}
 	if err := c.ShouldBindUri(&id); err != nil {
