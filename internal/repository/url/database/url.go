@@ -4,6 +4,7 @@ import (
 	domain "coins/internal/domain/url"
 	"coins/pkg/store/db/scoupes"
 	"coins/pkg/types/columnCode"
+	"coins/pkg/types/context"
 	"coins/pkg/types/queryParameter"
 	"gorm.io/gorm/clause"
 )
@@ -13,7 +14,10 @@ var mappingSort = map[columnCode.ColumnCode]string{
 	"type": "type",
 }
 
-func (r *Repository) CreateUrl(url *domain.Url) (*domain.Url, error) {
+func (r *Repository) CreateUrl(c context.Context, url *domain.Url) (*domain.Url, error) {
+	ctx := c.CopyWithTimeout(r.options.Timeout)
+	defer ctx.Cancel()
+
 	if err := r.db.Create(&url).Error; err != nil {
 		return nil, err
 	}
@@ -21,7 +25,10 @@ func (r *Repository) CreateUrl(url *domain.Url) (*domain.Url, error) {
 	return url, nil
 }
 
-func (r *Repository) UpdateUrl(url *domain.Url) (*domain.Url, error) {
+func (r *Repository) UpdateUrl(c context.Context, url *domain.Url) (*domain.Url, error) {
+	ctx := c.CopyWithTimeout(r.options.Timeout)
+	defer ctx.Cancel()
+
 	if err := r.db.Model(&url).Save(&url).Error; err != nil {
 		return nil, err
 	}
@@ -29,11 +36,17 @@ func (r *Repository) UpdateUrl(url *domain.Url) (*domain.Url, error) {
 	return url, nil
 }
 
-func (r *Repository) DeleteUrl(ID uint) error {
+func (r *Repository) DeleteUrl(c context.Context, ID uint) error {
+	ctx := c.CopyWithTimeout(r.options.Timeout)
+	defer ctx.Cancel()
+
 	return r.db.Delete(&domain.Url{}, ID).Error
 }
 
-func (r *Repository) UpsertUrls(urls ...*domain.Url) error {
+func (r *Repository) UpsertUrls(c context.Context, urls ...*domain.Url) error {
+	ctx := c.CopyWithTimeout(r.options.Timeout)
+	defer ctx.Cancel()
+
 	return r.db.
 		Clauses(clause.OnConflict{
 			Columns:   []clause.Column{{Name: "external_id"}},
@@ -43,7 +56,10 @@ func (r *Repository) UpsertUrls(urls ...*domain.Url) error {
 		Error
 }
 
-func (r *Repository) UrlById(ID uint) (*domain.Url, error) {
+func (r *Repository) UrlById(c context.Context, ID uint) (*domain.Url, error) {
+	ctx := c.CopyWithTimeout(r.options.Timeout)
+	defer ctx.Cancel()
+
 	var url *domain.Url
 
 	result := r.db.First(&url, ID)
@@ -51,7 +67,10 @@ func (r *Repository) UrlById(ID uint) (*domain.Url, error) {
 	return url, result.Error
 }
 
-func (r *Repository) ListUrls(coinId uint, parameter queryParameter.QueryParameter) ([]*domain.Url, error) {
+func (r *Repository) ListUrls(c context.Context, coinId uint, parameter queryParameter.QueryParameter) ([]*domain.Url, error) {
+	ctx := c.CopyWithTimeout(r.options.Timeout)
+	defer ctx.Cancel()
+
 	var urls []*domain.Url
 
 	builder := r.db.Model(&urls)
@@ -77,7 +96,10 @@ func (r *Repository) ListUrls(coinId uint, parameter queryParameter.QueryParamet
 	return urls, result.Error
 }
 
-func (r *Repository) CountUrls(coinId uint /*Тут можно передавать фильтр*/) (uint64, error) {
+func (r *Repository) CountUrls(c context.Context, coinId uint /*Тут можно передавать фильтр*/) (uint64, error) {
+	ctx := c.CopyWithTimeout(r.options.Timeout)
+	defer ctx.Cancel()
+
 	var count int64
 	url := domain.Url{CoinID: coinId}
 

@@ -6,6 +6,7 @@ import (
 	deliveryErr "coins/internal/delivery/http/error"
 	domain "coins/internal/domain/url"
 	useCase "coins/internal/useCase/interfaces"
+	"coins/pkg/types/context"
 	"coins/pkg/types/pagination"
 	"coins/pkg/types/query"
 	"coins/pkg/types/queryParameter"
@@ -61,7 +62,9 @@ func (handler *Handler) Delete(c *gin.Context) {
 		return
 	}
 
-	err = handler.useCase.Delete(urlId.Value, coinId.Value)
+	ctx := context.New(c)
+
+	err = handler.useCase.Delete(ctx, urlId.Value, coinId.Value)
 	if err != nil {
 		deliveryErr.SetError(c, http.StatusInternalServerError, err)
 
@@ -88,7 +91,9 @@ func (handler *Handler) List(c *gin.Context) {
 		return
 	}
 
-	urls, err := handler.useCase.List(coinId.Value, queryParameter.QueryParameter{
+	ctx := context.New(c)
+
+	urls, err := handler.useCase.List(ctx, coinId.Value, queryParameter.QueryParameter{
 		Sorts: params.Sorts,
 		Pagination: pagination.Pagination{
 			Limit: params.Limit,
@@ -101,7 +106,7 @@ func (handler *Handler) List(c *gin.Context) {
 		return
 	}
 
-	count, err := handler.useCase.Count(coinId.Value)
+	count, err := handler.useCase.Count(ctx, coinId.Value)
 	if err != nil {
 		deliveryErr.SetError(c, http.StatusInternalServerError, err)
 
@@ -120,12 +125,13 @@ func (handler *Handler) save(c *gin.Context, action actions.Action) *domain.Url 
 	}
 
 	var response *domain.Url
+	var ctx = context.New(c)
 
 	switch action {
 	case actions.Create:
-		response, err = handler.useCase.Create(url)
+		response, err = handler.useCase.Create(ctx, url)
 	case actions.Update:
-		response, err = handler.useCase.Update(url)
+		response, err = handler.useCase.Update(ctx, url)
 	}
 
 	if err != nil {

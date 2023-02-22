@@ -2,6 +2,7 @@ package messageBroker
 
 import (
 	broker "coins/pkg/store/messageBroker/serde"
+	"coins/pkg/types/context"
 	"errors"
 	"github.com/confluentinc/confluent-kafka-go/kafka"
 	"github.com/confluentinc/confluent-kafka-go/schemaregistry/serde"
@@ -49,7 +50,10 @@ func (k Kafka) Subscribe(topics []string) error {
 	return k.consumer.SubscribeTopics(topics, nil)
 }
 
-func (k Kafka) Consume(sigChan chan os.Signal, doneChan chan bool, callback ConsumeFunc) {
+func (k Kafka) Consume(sigChan chan os.Signal, doneChan chan bool, c context.Context, callback ConsumeFunc) {
+	ctx := c.Copy()
+	defer ctx.Cancel()
+
 	running := true
 
 	for running {
@@ -67,7 +71,7 @@ func (k Kafka) Consume(sigChan chan os.Signal, doneChan chan bool, callback Cons
 
 			switch e := ev.(type) {
 			case *kafka.Message:
-				err := callback(k.deserializer, *e.TopicPartition.Topic, e.Value)
+				err := callback(ctx, k.deserializer, *e.TopicPartition.Topic, e.Value)
 				if err != nil {
 					log.Printf("%% Error: %v\n", err)
 				}

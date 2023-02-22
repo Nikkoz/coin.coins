@@ -1,20 +1,23 @@
 package coin
 
-import "github.com/confluentinc/confluent-kafka-go/schemaregistry/serde"
+import (
+	"coins/pkg/types/context"
+	"github.com/confluentinc/confluent-kafka-go/schemaregistry/serde"
+)
 
-func (factory *Factory) Subscribe(topics []string) error {
-	return factory.adapterBroker.SubscribeCoin(topics)
+func (factory *Factory) Subscribe(ctx context.Context, topics []string) error {
+	return factory.adapterBroker.SubscribeCoin(ctx, topics)
 }
 
-func (factory *Factory) Consume(deserializer serde.Deserializer, topic string, msg []byte) error {
-	coins, err := factory.adapterBroker.ConsumeCoin(deserializer, topic, msg)
+func (factory *Factory) Consume(ctx context.Context, deserializer serde.Deserializer, topic string, msg []byte) error {
+	coins, err := factory.adapterBroker.ConsumeCoin(ctx, deserializer, topic, msg)
 	if err != nil {
 		return err
 	}
 
-	return factory.Upsert(coins...)
+	return factory.Upsert(ctx, coins...)
 }
 
-func (factory *Factory) Produce(serializer *serde.Serializer, msg any) error {
-	return factory.adapterBroker.ProduceCoin(serializer, msg)
+func (factory *Factory) Produce(ctx context.Context, serializer *serde.Serializer, msg any) error {
+	return factory.adapterBroker.ProduceCoin(ctx, serializer, msg)
 }

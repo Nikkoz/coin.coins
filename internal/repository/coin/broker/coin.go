@@ -3,20 +3,25 @@ package broker
 import (
 	"coins/internal/domain/coin"
 	"coins/internal/repository/coin/broker/entities"
+	"coins/pkg/types/context"
 	"fmt"
 	"github.com/confluentinc/confluent-kafka-go/schemaregistry/serde"
 )
 
-func (r *Repository) SubscribeCoin(topics []string) error {
+func (r *Repository) SubscribeCoin(ctx context.Context, topics []string) error {
+	defer ctx.Copy().Cancel()
+
 	return r.broker.Subscribe(topics)
 }
 
-func (r *Repository) ProduceCoin(serializer *serde.Serializer, msg any) error {
+func (r *Repository) ProduceCoin(ctx context.Context, serializer *serde.Serializer, msg any) error {
 	// TODO implement me
 	panic("implement me")
 }
 
-func (r *Repository) ConsumeCoin(deserializer serde.Deserializer, topic string, msg []byte) ([]*coin.Coin, error) {
+func (r *Repository) ConsumeCoin(ctx context.Context, deserializer serde.Deserializer, topic string, msg []byte) ([]*coin.Coin, error) {
+	defer ctx.Copy().Cancel()
+
 	value := entities.NewCoins()
 	if err := deserializer.DeserializeInto(topic, msg, &value); err != nil {
 		return nil, fmt.Errorf("failed to deserialize payload: %s\n", err)
