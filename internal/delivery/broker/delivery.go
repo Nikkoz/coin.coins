@@ -5,9 +5,6 @@ import (
 	"coins/pkg/store/messageBroker"
 	"coins/pkg/types/context"
 	"fmt"
-	"os"
-	"os/signal"
-	"syscall"
 )
 
 type (
@@ -18,7 +15,9 @@ type (
 		options Options
 	}
 
-	Options struct{}
+	Options struct {
+		Notify chan error
+	}
 )
 
 func New(ucCoin useCase.Coin, ucUrl useCase.Url, o Options) *Delivery {
@@ -33,27 +32,26 @@ func New(ucCoin useCase.Coin, ucUrl useCase.Url, o Options) *Delivery {
 }
 
 func (d *Delivery) setOptions(options Options) {
+	if options.Notify == nil {
+		d.options.Notify = make(chan error, 1)
+	}
+
 	if d.options != options {
 		d.options = options
 	}
 }
 
-func (d *Delivery) Run(broker messageBroker.MessageBroker, topics []string) error {
-	sigChan := make(chan os.Signal, 1)
-	doneChan := make(chan bool)
+func (d *Delivery) Run(broker messageBroker.MessageBroker, topics []string) {
 	ctx := context.New(context.Empty())
-
-	signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)
 
 	err := d.ucCoin.Subscribe(ctx, topics)
 	if err != nil {
-		return fmt.Errorf("can't subscribe on topics: %v\n", err)
+		d.options.Notify <- fmt.Errorf("can't subscribe on topics: %v\n", err)
+		close(d.options.Notify)
+
+		return
 	}
 
 	fmt.Println("message broker started successfully")
-	go broker.Consume(sigChan, doneChan, ctx, d.ucCoin.Consume)
-
-	<-doneChan
-
-	return nil
+	go broker.Consume(d.options.Notify, ctx, d.ucCoin.Consume)
 }

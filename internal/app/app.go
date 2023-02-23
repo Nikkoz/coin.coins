@@ -9,8 +9,12 @@ import (
 	repositoryUrl "coins/internal/repository/url/database"
 	coinFactory "coins/internal/useCase/factories/coin"
 	urlFactory "coins/internal/useCase/factories/url"
+	"fmt"
 	"github.com/joho/godotenv"
 	"log"
+	"os"
+	"os/signal"
+	"syscall"
 )
 
 var config *configs.Config
@@ -33,21 +37,27 @@ func Run() {
 	defer broker.Close()
 
 	var (
+		notify       = make(chan error, 1)
 		repoUrl      = repositoryUrl.New(conn, repositoryUrl.Options{})
 		repoCoin     = repositoryCoin.New(conn, repoUrl, repositoryCoin.Options{})
 		repoBroker   = repositoryBroker.New(broker, repositoryBroker.Options{})
 		fCoin        = coinFactory.New(repoCoin, repoBroker, coinFactory.Options{})
 		fUrl         = urlFactory.New(repoUrl, urlFactory.Options{})
-		messenger    = messageBroker.New(fCoin, fUrl, messageBroker.Options{})
-		listenerHttp = deliveryHttp.New(fCoin, fUrl, deliveryHttp.Options{})
+		messenger    = messageBroker.New(fCoin, fUrl, messageBroker.Options{Notify: notify})
+		listenerHttp = deliveryHttp.New(fCoin, fUrl, deliveryHttp.Options{Notify: notify})
 	)
 
-	if err := messenger.Run(broker, config.Broker.Topics); err != nil {
-		log.Fatalf("message broker error: %e", err)
-	}
+	messenger.Run(broker, config.Broker.Topics)
+	listenerHttp.Run(*config)
 
-	if err := listenerHttp.Run(*config); err != nil {
-		log.Fatalf("http server error: %e", err)
+	interrupt := make(chan os.Signal, 1)
+	signal.Notify(interrupt, syscall.SIGINT, syscall.SIGTERM)
+
+	select {
+	case s := <-interrupt:
+		log.Println("app - Run - signal: " + s.String())
+	case err := <-notify:
+		log.Println(fmt.Errorf("app - Run: %v", err))
 	}
 }
 

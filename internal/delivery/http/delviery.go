@@ -7,9 +7,6 @@ import (
 	useCase "coins/internal/useCase/interfaces"
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"os"
-	"os/signal"
-	"syscall"
 )
 
 type (
@@ -23,7 +20,9 @@ type (
 		Handlers Handlers
 	}
 
-	Options struct{}
+	Options struct {
+		Notify chan error
+	}
 
 	Handlers struct {
 		Coin *coinHandler.Handler
@@ -44,6 +43,10 @@ func New(ucCoin useCase.Coin, ucUrl useCase.Url, o Options) *Delivery {
 }
 
 func (d *Delivery) setOptions(options Options) {
+	if options.Notify == nil {
+		d.options.Notify = make(chan error, 1)
+	}
+
 	if d.options != options {
 		d.options = options
 	}
@@ -56,17 +59,14 @@ func (d *Delivery) setHandlers() {
 	}
 }
 
-func (d *Delivery) Run(config configs.Config) (err error) {
+func (d *Delivery) Run(config configs.Config) {
 	d.initRouter(config)
 
-	signalCh := make(chan os.Signal, 1)
-	signal.Notify(signalCh, syscall.SIGINT, syscall.SIGTERM)
-
 	go func() {
-		err = d.router.Run(fmt.Sprintf("%s:%d", config.Http.Host, config.Http.Port))
+		if err := d.router.Run(fmt.Sprintf("%s:%d", config.Http.Host, config.Http.Port)); err != nil {
+			d.options.Notify <- err
+
+			close(d.options.Notify)
+		}
 	}()
-
-	<-signalCh
-
-	return err
 }

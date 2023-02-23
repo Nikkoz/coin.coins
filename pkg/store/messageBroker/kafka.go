@@ -4,10 +4,10 @@ import (
 	broker "coins/pkg/store/messageBroker/serde"
 	"coins/pkg/types/context"
 	"errors"
+	"fmt"
 	"github.com/confluentinc/confluent-kafka-go/kafka"
 	"github.com/confluentinc/confluent-kafka-go/schemaregistry/serde"
 	"log"
-	"os"
 )
 
 const (
@@ -50,19 +50,14 @@ func (k Kafka) Subscribe(topics []string) error {
 	return k.consumer.SubscribeTopics(topics, nil)
 }
 
-func (k Kafka) Consume(sigChan chan os.Signal, doneChan chan bool, c context.Context, callback ConsumeFunc) {
+func (k Kafka) Consume(notify chan error, c context.Context, callback ConsumeFunc) {
 	ctx := c.Copy()
 	defer ctx.Cancel()
 
-	running := true
-
-	for running {
+	for {
 		select {
-		case sig := <-sigChan:
-			log.Printf("Caught signal %v: terminating\n", sig)
-
-			doneChan <- true
-			running = false
+		case <-notify:
+			return
 		default:
 			ev := k.consumer.Poll(100)
 			if ev == nil {
@@ -76,21 +71,23 @@ func (k Kafka) Consume(sigChan chan os.Signal, doneChan chan bool, c context.Con
 					log.Printf("%% Error: %v\n", err)
 				}
 			case kafka.Error:
-				log.Printf("%% Error: %v: %v\n", e.Code(), e)
+				notify <- fmt.Errorf("Error: %v: %v\n", e.Code(), e)
 
-				doneChan <- true
-				running = false
+				close(notify)
+
+				return
 			default:
 				log.Printf("Ignored %v\n", e)
 			}
 		}
 	}
-
-	close(doneChan)
 }
 
 func (k Kafka) Close() {
-	k.consumer.Close()
+	err := k.consumer.Close()
+	if err != nil {
+		return
+	}
 }
 
 func deserializer(sr SchemaRegistry) (serde.Deserializer, error) {
