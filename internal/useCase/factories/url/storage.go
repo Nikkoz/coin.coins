@@ -3,6 +3,7 @@ package url
 import (
 	domain "coins/internal/domain/url"
 	"coins/pkg/types/context"
+	"coins/pkg/types/logger"
 	"coins/pkg/types/queryParameter"
 	"github.com/pkg/errors"
 )
@@ -22,7 +23,7 @@ func (f *Factory) Delete(ctx context.Context, ID uint, coinId uint) error {
 	}
 
 	if url.CoinID != coinId {
-		return errors.New("url doesn't belong to the specified coin")
+		return logger.ErrorWithContext(ctx, errors.New("url doesn't belong to the specified coin"))
 	}
 
 	return f.adapterStorage.DeleteUrl(ctx, ID)

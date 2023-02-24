@@ -4,6 +4,8 @@ import (
 	domain "coins/internal/domain/coin"
 	"coins/internal/domain/coin/types/code"
 	"coins/internal/domain/coin/types/name"
+	"coins/pkg/types/context"
+	"coins/pkg/types/logger"
 	"fmt"
 	"github.com/gin-gonic/gin"
 )
@@ -29,7 +31,7 @@ func prepare(c *gin.Context, setCoinId bool) (*domain.Coin, error) {
 func Id(c *gin.Context) (*ID, error) {
 	id := &ID{}
 	if err := c.ShouldBindUri(&id); err != nil {
-		return nil, err
+		return nil, logger.ErrorWithContext(context.New(c), err)
 	}
 
 	return id, nil
@@ -43,12 +45,12 @@ func newCoin(c *gin.Context) (*domain.Coin, error) {
 
 	coinName, err := name.New(coin.Name)
 	if err != nil {
-		return nil, err
+		return nil, logger.ErrorWithContext(context.New(c), err)
 	}
 
 	coinCode, err := code.New(coin.Code)
 	if err != nil {
-		return nil, err
+		return nil, logger.ErrorWithContext(context.New(c), err)
 	}
 
 	return domain.New(*coinName, *coinCode, nil), nil

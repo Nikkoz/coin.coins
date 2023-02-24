@@ -5,6 +5,7 @@ import (
 	"coins/pkg/store/db/scoupes"
 	"coins/pkg/types/columnCode"
 	"coins/pkg/types/context"
+	"coins/pkg/types/logger"
 	"coins/pkg/types/queryParameter"
 	"gorm.io/gorm/clause"
 )
@@ -19,7 +20,7 @@ func (r *Repository) CreateUrl(c context.Context, url *domain.Url) (*domain.Url,
 	defer ctx.Cancel()
 
 	if err := r.db.Create(&url).Error; err != nil {
-		return nil, err
+		return nil, logger.ErrorWithContext(context.New(c), err)
 	}
 
 	return url, nil
@@ -30,7 +31,7 @@ func (r *Repository) UpdateUrl(c context.Context, url *domain.Url) (*domain.Url,
 	defer ctx.Cancel()
 
 	if err := r.db.Model(&url).Save(&url).Error; err != nil {
-		return nil, err
+		return nil, logger.ErrorWithContext(context.New(c), err)
 	}
 
 	return url, nil
@@ -40,20 +41,29 @@ func (r *Repository) DeleteUrl(c context.Context, ID uint) error {
 	ctx := c.CopyWithTimeout(r.options.Timeout)
 	defer ctx.Cancel()
 
-	return r.db.Delete(&domain.Url{}, ID).Error
+	result := r.db.Delete(&domain.Url{}, ID)
+	if result.Error != nil {
+		return logger.ErrorWithContext(ctx, result.Error)
+	}
+
+	return nil
 }
 
 func (r *Repository) UpsertUrls(c context.Context, urls ...*domain.Url) error {
 	ctx := c.CopyWithTimeout(r.options.Timeout)
 	defer ctx.Cancel()
 
-	return r.db.
+	result := r.db.
 		Clauses(clause.OnConflict{
 			Columns:   []clause.Column{{Name: "external_id"}},
 			UpdateAll: true,
 		}).
-		Create(urls).
-		Error
+		Create(urls)
+	if result.Error != nil {
+		return logger.ErrorWithContext(ctx, result.Error)
+	}
+
+	return nil
 }
 
 func (r *Repository) UrlById(c context.Context, ID uint) (*domain.Url, error) {
@@ -63,8 +73,11 @@ func (r *Repository) UrlById(c context.Context, ID uint) (*domain.Url, error) {
 	var url *domain.Url
 
 	result := r.db.First(&url, ID)
+	if result.Error != nil {
+		return nil, logger.ErrorWithContext(c, result.Error)
+	}
 
-	return url, result.Error
+	return url, nil
 }
 
 func (r *Repository) ListUrls(c context.Context, coinId uint, parameter queryParameter.QueryParameter) ([]*domain.Url, error) {
@@ -93,7 +106,11 @@ func (r *Repository) ListUrls(c context.Context, coinId uint, parameter queryPar
 		)).
 		Find(&urls)
 
-	return urls, result.Error
+	if result.Error != nil {
+		return urls, logger.ErrorWithContext(ctx, result.Error)
+	}
+
+	return urls, nil
 }
 
 func (r *Repository) CountUrls(c context.Context, coinId uint /*Тут можно передавать фильтр*/) (uint64, error) {
@@ -104,6 +121,9 @@ func (r *Repository) CountUrls(c context.Context, coinId uint /*Тут можн�
 	url := domain.Url{CoinID: coinId}
 
 	result := r.db.Model(&url).Where(&url).Count(&count)
+	if result.Error != nil {
+		return 0, logger.ErrorWithContext(ctx, result.Error)
+	}
 
-	return uint64(count), result.Error
+	return uint64(count), nil
 }

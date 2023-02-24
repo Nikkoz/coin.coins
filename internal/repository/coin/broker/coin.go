@@ -4,7 +4,7 @@ import (
 	"coins/internal/domain/coin"
 	"coins/internal/repository/coin/broker/entities"
 	"coins/pkg/types/context"
-	"fmt"
+	"coins/pkg/types/logger"
 	"github.com/confluentinc/confluent-kafka-go/schemaregistry/serde"
 )
 
@@ -24,7 +24,7 @@ func (r *Repository) ConsumeCoin(ctx context.Context, deserializer serde.Deseria
 
 	value := entities.NewCoins()
 	if err := deserializer.DeserializeInto(topic, msg, &value); err != nil {
-		return nil, fmt.Errorf("failed to deserialize payload: %s\n", err)
+		return nil, logger.ErrorWithContext(ctx, err)
 	}
 
 	//if e.Headers != nil {
@@ -33,7 +33,7 @@ func (r *Repository) ConsumeCoin(ctx context.Context, deserializer serde.Deseria
 
 	coins, err := toModels(value.Coins)
 	if err != nil {
-		return nil, fmt.Errorf("validation error: %v\n", err)
+		return nil, logger.FatalWithContext(ctx, err)
 	}
 
 	return coins, nil

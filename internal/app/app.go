@@ -9,6 +9,7 @@ import (
 	repositoryUrl "coins/internal/repository/url/database"
 	coinFactory "coins/internal/useCase/factories/coin"
 	urlFactory "coins/internal/useCase/factories/url"
+	"coins/pkg/types/logger"
 	"fmt"
 	"github.com/joho/godotenv"
 	"log"
@@ -25,8 +26,7 @@ func init() {
 }
 
 func Run() {
-	// @todo: see https://github.com/evrone/go-clean-template/blob/34844d644b3cd20696b7bebbec32b0a65678ba7a/internal/app/app.go
-	//log := logger.New(config.Log.Level)
+	logger.New(*config)
 
 	conn, conClose := connectionDB()
 	defer conClose()
@@ -37,7 +37,8 @@ func Run() {
 	defer broker.Close()
 
 	var (
-		notify       = make(chan error, 1)
+		notify = make(chan error, 1)
+
 		repoUrl      = repositoryUrl.New(conn, repositoryUrl.Options{})
 		repoCoin     = repositoryCoin.New(conn, repoUrl, repositoryCoin.Options{})
 		repoBroker   = repositoryBroker.New(broker, repositoryBroker.Options{})
@@ -55,9 +56,9 @@ func Run() {
 
 	select {
 	case s := <-interrupt:
-		log.Println("app - Run - signal: " + s.String())
+		logger.Info("app - Run - signal: " + s.String())
 	case err := <-notify:
-		log.Println(fmt.Errorf("app - Run: %v", err))
+		logger.Fatal(fmt.Errorf("app - Run: %v", err))
 	}
 }
 

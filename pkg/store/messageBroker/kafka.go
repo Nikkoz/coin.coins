@@ -3,11 +3,11 @@ package messageBroker
 import (
 	broker "coins/pkg/store/messageBroker/serde"
 	"coins/pkg/types/context"
+	"coins/pkg/types/logger"
 	"errors"
 	"fmt"
 	"github.com/confluentinc/confluent-kafka-go/kafka"
 	"github.com/confluentinc/confluent-kafka-go/schemaregistry/serde"
-	"log"
 )
 
 const (
@@ -68,16 +68,16 @@ func (k Kafka) Consume(notify chan error, c context.Context, callback ConsumeFun
 			case *kafka.Message:
 				err := callback(ctx, k.deserializer, *e.TopicPartition.Topic, e.Value)
 				if err != nil {
-					log.Printf("%% Error: %v\n", err)
+					logger.Error(err)
 				}
 			case kafka.Error:
-				notify <- fmt.Errorf("Error: %v: %v\n", e.Code(), e)
+				notify <- logger.ErrorWithContext(ctx, e)
 
 				close(notify)
 
 				return
 			default:
-				log.Printf("Ignored %v\n", e)
+				logger.Info(fmt.Sprintf("Ignored %v\n", e))
 			}
 		}
 	}

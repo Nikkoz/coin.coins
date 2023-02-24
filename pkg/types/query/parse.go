@@ -2,6 +2,7 @@ package query
 
 import (
 	"coins/pkg/types/columnCode"
+	"coins/pkg/types/logger"
 	"coins/pkg/types/sort"
 	"strconv"
 )
@@ -20,6 +21,8 @@ func parseSorts(sorts map[string]string, options SortsOptions) (sort.Sorts, erro
 	for field, d := range sorts {
 		key, err := columnCode.New(field)
 		if err != nil {
+			logger.Error(err)
+
 			return nil, err
 		}
 

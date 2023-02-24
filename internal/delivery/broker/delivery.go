@@ -4,6 +4,7 @@ import (
 	useCase "coins/internal/useCase/interfaces"
 	"coins/pkg/store/messageBroker"
 	"coins/pkg/types/context"
+	"coins/pkg/types/logger"
 	"fmt"
 )
 
@@ -52,6 +53,6 @@ func (d *Delivery) Run(broker messageBroker.MessageBroker, topics []string) {
 		return
 	}
 
-	fmt.Println("message broker started successfully")
+	logger.Info("message broker started successfully")
 	go broker.Consume(d.options.Notify, ctx, d.ucCoin.Consume)
 }

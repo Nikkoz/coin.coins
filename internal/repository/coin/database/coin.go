@@ -6,6 +6,7 @@ import (
 	"coins/pkg/store/db/scoupes"
 	"coins/pkg/types/columnCode"
 	"coins/pkg/types/context"
+	"coins/pkg/types/logger"
 	"coins/pkg/types/queryParameter"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
@@ -22,7 +23,7 @@ func (r *Repository) CreateCoin(c context.Context, coin *coin.Coin) (*coin.Coin,
 	defer ctx.Cancel()
 
 	if err := r.db.Create(&coin).Error; err != nil {
-		return nil, err
+		return nil, logger.ErrorWithContext(ctx, err)
 	}
 
 	return coin, nil
@@ -33,7 +34,7 @@ func (r *Repository) UpdateCoin(c context.Context, coin *coin.Coin) (*coin.Coin,
 	defer ctx.Cancel()
 
 	if err := r.db.Model(&coin).Save(&coin).Error; err != nil {
-		return nil, err
+		return nil, logger.ErrorWithContext(ctx, err)
 	}
 
 	return coin, nil
@@ -43,7 +44,12 @@ func (r *Repository) DeleteCoin(c context.Context, ID uint) error {
 	ctx := c.CopyWithTimeout(r.options.Timeout)
 	defer ctx.Cancel()
 
-	return r.db.Delete(&coin.Coin{}, ID).Error
+	result := r.db.Delete(&coin.Coin{}, ID)
+	if result.Error != nil {
+		return logger.ErrorWithContext(ctx, result.Error)
+	}
+
+	return nil
 }
 
 func (r *Repository) UpsertCoins(c context.Context, coins ...*coin.Coin) error {
@@ -60,13 +66,13 @@ func (r *Repository) UpsertCoins(c context.Context, coins ...*coin.Coin) error {
 			Error
 
 		if err != nil {
-			return err
+			return logger.ErrorWithContext(ctx, err)
 		}
 
 		return r.saveAssociations(ctx, coins...)
 	})
 
-	return err
+	return logger.ErrorWithContext(ctx, err)
 }
 
 func (r *Repository) ListCoins(c context.Context, parameter queryParameter.QueryParameter) ([]*coin.Coin, error) {
@@ -98,7 +104,11 @@ func (r *Repository) ListCoins(c context.Context, parameter queryParameter.Query
 		)).
 		Find(&coins)
 
-	return coins, result.Error
+	if result.Error != nil {
+		return coins, logger.FatalWithContext(ctx, result.Error)
+	}
+
+	return coins, nil
 }
 
 func (r *Repository) CountCoins(c context.Context /*Тут можно передавать фильтр*/) (uint64, error) {
@@ -109,7 +119,11 @@ func (r *Repository) CountCoins(c context.Context /*Тут можно перед
 
 	result := r.db.Model(&coin.Coin{}).Count(&count)
 
-	return uint64(count), result.Error
+	if result.Error != nil {
+		return 0, logger.FatalWithContext(ctx, result.Error)
+	}
+
+	return uint64(count), nil
 }
 
 func (r *Repository) saveAssociations(c context.Context, coins ...*coin.Coin) error {
@@ -128,7 +142,7 @@ func (r *Repository) saveAssociations(c context.Context, coins ...*coin.Coin) er
 	}
 
 	if err := r.repoUrl.UpsertUrls(c, urls...); err != nil {
-		return err
+		return logger.ErrorWithContext(c, err)
 	}
 
 	return nil

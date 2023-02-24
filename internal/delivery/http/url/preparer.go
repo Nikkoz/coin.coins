@@ -5,7 +5,8 @@ import (
 	domain "coins/internal/domain/url"
 	"coins/internal/domain/url/types/link"
 	"coins/internal/domain/url/types/socialMedia"
-	"fmt"
+	"coins/pkg/types/context"
+	"coins/pkg/types/logger"
 	"github.com/gin-gonic/gin"
 )
 
@@ -38,7 +39,7 @@ func prepare(c *gin.Context, setUrlId bool) (*domain.Url, error) {
 func id(c *gin.Context) (*ID, error) {
 	id := &ID{}
 	if err := c.ShouldBindUri(&id); err != nil {
-		return nil, err
+		return nil, logger.ErrorWithContext(context.New(c), err)
 	}
 
 	return id, nil
@@ -47,17 +48,17 @@ func id(c *gin.Context) (*ID, error) {
 func newUrl(c *gin.Context) (*domain.Url, error) {
 	url := Short{}
 	if err := c.ShouldBindJSON(&url); err != nil {
-		return nil, fmt.Errorf("payload is not correct, Error: %w", err)
+		return nil, logger.ErrorWithContext(context.New(c), err)
 	}
 
 	urlLink, err := link.New(url.Link)
 	if err != nil {
-		return nil, err
+		return nil, logger.ErrorWithContext(context.New(c), err)
 	}
 
 	urlType, err := socialMedia.New(url.Type)
 	if err != nil {
-		return nil, err
+		return nil, logger.ErrorWithContext(context.New(c), err)
 	}
 
 	return domain.New(nil, *urlLink, *urlType), nil
