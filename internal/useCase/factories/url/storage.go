@@ -29,7 +29,7 @@ func (f *Factory) Delete(ctx context.Context, ID uint, coinId uint) error {
 	return f.adapterStorage.DeleteUrl(ctx, ID)
 }
 
-func (f *Factory) Upsert(ctx context.Context, urls ...*domain.Url) error {
+func (f *Factory) Upsert(ctx context.Context, urls ...*domain.Url) ([]*domain.Url, error) {
 	return f.adapterStorage.UpsertUrls(ctx, urls...)
 }
 

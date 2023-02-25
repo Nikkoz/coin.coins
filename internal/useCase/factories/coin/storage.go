@@ -18,7 +18,7 @@ func (factory *Factory) Delete(ctx context.Context, ID uint) error {
 	return factory.adapterStorage.DeleteCoin(ctx, ID)
 }
 
-func (factory *Factory) Upsert(ctx context.Context, coins ...*coin.Coin) error {
+func (factory *Factory) Upsert(ctx context.Context, coins ...*coin.Coin) ([]*coin.Coin, error) {
 	return factory.adapterStorage.UpsertCoins(ctx, coins...)
 }
 

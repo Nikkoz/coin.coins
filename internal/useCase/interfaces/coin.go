@@ -12,7 +12,7 @@ type (
 		Create(ctx context.Context, coin *coin.Coin) (*coin.Coin, error)
 		Update(ctx context.Context, coin *coin.Coin) (*coin.Coin, error)
 		Delete(ctx context.Context, ID uint) error
-		Upsert(ctx context.Context, coins ...*coin.Coin) error
+		Upsert(ctx context.Context, coins ...*coin.Coin) ([]*coin.Coin, error)
 
 		CoinReader
 		BrokerCoin

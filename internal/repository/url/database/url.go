@@ -49,7 +49,7 @@ func (r *Repository) DeleteUrl(c context.Context, ID uint) error {
 	return nil
 }
 
-func (r *Repository) UpsertUrls(c context.Context, urls ...*domain.Url) error {
+func (r *Repository) UpsertUrls(c context.Context, urls ...*domain.Url) ([]*domain.Url, error) {
 	ctx := c.CopyWithTimeout(r.options.Timeout)
 	defer ctx.Cancel()
 
@@ -60,10 +60,10 @@ func (r *Repository) UpsertUrls(c context.Context, urls ...*domain.Url) error {
 		}).
 		Create(urls)
 	if result.Error != nil {
-		return logger.ErrorWithContext(ctx, result.Error)
+		return urls, logger.ErrorWithContext(ctx, result.Error)
 	}
 
-	return nil
+	return urls, nil
 }
 
 func (r *Repository) UrlById(c context.Context, ID uint) (*domain.Url, error) {

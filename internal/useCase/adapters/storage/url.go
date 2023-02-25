@@ -11,7 +11,7 @@ type (
 		CreateUrl(ctx context.Context, url *url.Url) (*url.Url, error)
 		UpdateUrl(ctx context.Context, url *url.Url) (*url.Url, error)
 		DeleteUrl(ctx context.Context, ID uint) error
-		UpsertUrls(ctx context.Context, urls ...*url.Url) error
+		UpsertUrls(ctx context.Context, urls ...*url.Url) ([]*url.Url, error)
 
 		UrlReader
 	}

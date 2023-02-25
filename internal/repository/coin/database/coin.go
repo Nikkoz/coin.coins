@@ -52,7 +52,7 @@ func (r *Repository) DeleteCoin(c context.Context, ID uint) error {
 	return nil
 }
 
-func (r *Repository) UpsertCoins(c context.Context, coins ...*coin.Coin) error {
+func (r *Repository) UpsertCoins(c context.Context, coins ...*coin.Coin) ([]*coin.Coin, error) {
 	ctx := c.CopyWithTimeout(r.options.Timeout)
 	defer ctx.Cancel()
 
@@ -72,7 +72,11 @@ func (r *Repository) UpsertCoins(c context.Context, coins ...*coin.Coin) error {
 		return r.saveAssociations(ctx, coins...)
 	})
 
-	return logger.ErrorWithContext(ctx, err)
+	if err != nil {
+		return coins, logger.ErrorWithContext(ctx, err)
+	}
+
+	return coins, nil
 }
 
 func (r *Repository) ListCoins(c context.Context, parameter queryParameter.QueryParameter) ([]*coin.Coin, error) {
@@ -141,7 +145,7 @@ func (r *Repository) saveAssociations(c context.Context, coins ...*coin.Coin) er
 		}
 	}
 
-	if err := r.repoUrl.UpsertUrls(c, urls...); err != nil {
+	if _, err := r.repoUrl.UpsertUrls(c, urls...); err != nil {
 		return logger.ErrorWithContext(c, err)
 	}
 

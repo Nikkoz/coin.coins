@@ -11,7 +11,7 @@ type (
 		CreateCoin(ctx context.Context, coin *coin.Coin) (*coin.Coin, error)
 		UpdateCoin(ctx context.Context, coin *coin.Coin) (*coin.Coin, error)
 		DeleteCoin(ctx context.Context, ID uint) error
-		UpsertCoins(ctx context.Context, coins ...*coin.Coin) error
+		UpsertCoins(ctx context.Context, coins ...*coin.Coin) ([]*coin.Coin, error)
 
 		CoinReader
 	}

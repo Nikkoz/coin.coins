@@ -11,7 +11,7 @@ type (
 		Create(ctx context.Context, url *url.Url) (*url.Url, error)
 		Update(ctx context.Context, url *url.Url) (*url.Url, error)
 		Delete(ctx context.Context, ID uint, coinId uint) error
-		Upsert(ctx context.Context, urls ...*url.Url) error
+		Upsert(ctx context.Context, urls ...*url.Url) ([]*url.Url, error)
 
 		UrlReader
 	}
