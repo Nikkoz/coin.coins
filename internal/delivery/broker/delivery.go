@@ -5,7 +5,6 @@ import (
 	"coins/pkg/store/messageBroker"
 	"coins/pkg/types/context"
 	"coins/pkg/types/logger"
-	"fmt"
 )
 
 type (
@@ -45,14 +44,20 @@ func (d *Delivery) setOptions(options Options) {
 func (d *Delivery) Run(broker messageBroker.MessageBroker, topics []string) {
 	ctx := context.New(context.Empty())
 
-	err := d.ucCoin.Subscribe(ctx, topics)
-	if err != nil {
-		d.options.Notify <- fmt.Errorf("can't subscribe on topics: %v\n", err)
-		close(d.options.Notify)
+	go func() {
+		defer close(d.options.Notify)
 
-		return
-	}
+		d.options.Notify <- d.ucCoin.Subscribe(ctx, topics)
+	}()
 
 	logger.Info("message broker started successfully")
-	go broker.Consume(d.options.Notify, ctx, d.ucCoin.Consume)
+	go func() {
+		defer close(d.options.Notify)
+
+		broker.Consume(d.options.Notify, ctx, d.ucCoin.Consume)
+	}()
+}
+
+func (d *Delivery) Notify() <-chan error {
+	return d.options.Notify
 }

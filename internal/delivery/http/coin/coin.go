@@ -77,6 +77,7 @@ func (handler *Handler) List(c *gin.Context) {
 		return
 	}
 
+	// @todo: add timeout for context
 	ctx := context.New(c)
 
 	coins, err := handler.useCase.List(ctx, queryParameter.QueryParameter{

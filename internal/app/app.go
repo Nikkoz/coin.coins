@@ -37,15 +37,13 @@ func Run() {
 	defer broker.Close()
 
 	var (
-		notify = make(chan error, 1)
-
 		repoUrl      = repositoryUrl.New(conn, repositoryUrl.Options{})
 		repoCoin     = repositoryCoin.New(conn, repoUrl, repositoryCoin.Options{})
 		repoBroker   = repositoryBroker.New(broker, repositoryBroker.Options{})
 		fCoin        = coinFactory.New(repoCoin, repoBroker, coinFactory.Options{})
 		fUrl         = urlFactory.New(repoUrl, urlFactory.Options{})
-		messenger    = messageBroker.New(fCoin, fUrl, messageBroker.Options{Notify: notify})
-		listenerHttp = deliveryHttp.New(fCoin, fUrl, deliveryHttp.Options{Notify: notify})
+		messenger    = messageBroker.New(fCoin, fUrl, messageBroker.Options{})
+		listenerHttp = deliveryHttp.New(fCoin, fUrl, deliveryHttp.Options{})
 	)
 
 	messenger.Run(broker, config.Broker.Topics)
@@ -57,8 +55,10 @@ func Run() {
 	select {
 	case s := <-interrupt:
 		logger.Info("app - Run - signal: " + s.String())
-	case err := <-notify:
-		logger.Fatal(fmt.Errorf("app - Run: %v", err))
+	case err := <-listenerHttp.Notify():
+		logger.Error(fmt.Errorf("app - Run http server: %v", err))
+	case err := <-messenger.Notify():
+		logger.Error(fmt.Errorf("app - Run msg brocker: %v", err))
 	}
 }
 

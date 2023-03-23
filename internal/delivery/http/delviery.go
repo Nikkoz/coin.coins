@@ -63,10 +63,12 @@ func (d *Delivery) Run(config configs.Config) {
 	d.initRouter(config)
 
 	go func() {
-		if err := d.router.Run(fmt.Sprintf("%s:%d", config.Http.Host, config.Http.Port)); err != nil {
-			d.options.Notify <- err
+		defer close(d.options.Notify)
 
-			close(d.options.Notify)
-		}
+		d.options.Notify <- d.router.Run(fmt.Sprintf("%s:%d", config.Http.Host, config.Http.Port))
 	}()
+}
+
+func (d *Delivery) Notify() <-chan error {
+	return d.options.Notify
 }
