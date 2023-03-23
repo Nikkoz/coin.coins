@@ -11,7 +11,12 @@ import (
 func (r *Repository) SubscribeCoin(ctx context.Context, topics []string) error {
 	defer ctx.Copy().Cancel()
 
-	return r.broker.Subscribe(topics)
+	err := r.broker.Subscribe(topics)
+	if err != nil {
+		return logger.FatalWithContext(ctx, err)
+	}
+
+	return nil
 }
 
 func (r *Repository) ProduceCoin(ctx context.Context, serializer *serde.Serializer, msg any) error {

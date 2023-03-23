@@ -73,8 +73,6 @@ func (k Kafka) Consume(notify chan error, c context.Context, callback ConsumeFun
 			case kafka.Error:
 				notify <- logger.ErrorWithContext(ctx, e)
 
-				close(notify)
-
 				return
 			default:
 				logger.Info(fmt.Sprintf("Ignored %v\n", e))
