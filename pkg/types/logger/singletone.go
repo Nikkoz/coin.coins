@@ -1,16 +1,15 @@
 package logger
 
 import (
-	"coins/configs"
 	"coins/pkg/types/context"
 	"go.uber.org/zap"
 )
 
 var log *Logger
 
-func New(config configs.Config) {
+func New(isProduction bool, level string) {
 	if log == nil {
-		newLogger, err := new(config)
+		newLogger, err := new(isProduction, level)
 		if err != nil {
 			panic(err)
 		}

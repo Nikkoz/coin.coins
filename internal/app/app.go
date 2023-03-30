@@ -9,6 +9,7 @@ import (
 	repositoryUrl "coins/internal/repository/url/database"
 	coinFactory "coins/internal/useCase/factories/coin"
 	urlFactory "coins/internal/useCase/factories/url"
+	"coins/pkg/types/context"
 	"coins/pkg/types/logger"
 	"fmt"
 	"github.com/joho/godotenv"
@@ -26,7 +27,10 @@ func init() {
 }
 
 func Run() {
-	logger.New(*config)
+	ctx := context.Empty()
+	defer ctx.Cancel()
+
+	logger.New(config.App.Environment.IsProduction(), config.Log.Level.String())
 
 	conn, conClose := connectionDB()
 	defer conClose()

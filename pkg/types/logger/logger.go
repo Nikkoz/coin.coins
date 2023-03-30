@@ -13,16 +13,16 @@ type Logger struct {
 	logger *zap.Logger
 }
 
-func new(cfg configs.Config) (*Logger, error) {
+func new(isProduction bool, l string) (*Logger, error) {
 	var config zap.Config
 
-	if cfg.App.Environment.IsProduction() {
+	if isProduction {
 		config = zap.NewProductionConfig()
 	} else {
 		config = zap.NewDevelopmentConfig()
 	}
 
-	level := level(cfg.Log)
+	level := level(l)
 	config.Level = zap.NewAtomicLevelAt(level)
 
 	newLogger, err := config.Build(zap.AddCallerSkip(2))
@@ -41,8 +41,8 @@ func NewLogger(cfg configs.Config) (*Logger, error) {
 	return new(cfg)
 }
 
-func level(cfg configs.Log) zapcore.Level {
-	switch strings.ToUpper(strings.TrimSpace(string(cfg.Level))) {
+func level(level string) zapcore.Level {
+	switch strings.ToUpper(strings.TrimSpace(level)) {
 	case "ERR", "ERROR":
 		return zapcore.ErrorLevel
 	case "WARN", "WARNING":
