@@ -99,3 +99,10 @@ func New(option interface{}) Context {
 
 	return ctx
 }
+
+func NewWithTimeout(option interface{}, timeout time.Duration) Context {
+	ctx := New(option)
+	ctx.WithTimeout(timeout)
+
+	return ctx
+}

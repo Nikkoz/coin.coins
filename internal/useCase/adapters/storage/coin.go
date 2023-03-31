@@ -17,6 +17,7 @@ type (
 	}
 
 	CoinReader interface {
+		CoinByID(ctx context.Context, id uint) (*coin.Coin, error)
 		ListCoins(ctx context.Context, parameter queryParameter.QueryParameter) ([]*coin.Coin, error)
 		CountCoins(ctx context.Context /*Тут можно передавать фильтр*/) (uint64, error)
 	}

@@ -79,6 +79,18 @@ func (r *Repository) UpsertCoins(c context.Context, coins ...*coin.Coin) ([]*coi
 	return coins, nil
 }
 
+func (r *Repository) CoinByID(ctx context.Context, id uint) (*coin.Coin, error) {
+	ctx = ctx.CopyWithTimeout(r.options.Timeout)
+	defer ctx.Cancel()
+
+	c := &coin.Coin{}
+	if err := r.db.Where("id =?", id).First(&c).Error; err != nil {
+		return nil, logger.ErrorWithContext(ctx, err)
+	}
+
+	return c, nil
+}
+
 func (r *Repository) ListCoins(c context.Context, parameter queryParameter.QueryParameter) ([]*coin.Coin, error) {
 	ctx := c.CopyWithTimeout(r.options.Timeout)
 	defer ctx.Cancel()

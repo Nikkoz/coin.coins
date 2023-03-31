@@ -11,6 +11,7 @@ type (
 		App            App            `envPrefix:"APP_"`
 		Auth           Auth           `envPrefix:"AUTH_"`
 		Http           Http           `envPrefix:"HTTP_"`
+		Grpc           Grpc           `envPrefix:"GRPC_"`
 		Db             Db             `envPrefix:"DB_"`
 		Broker         Broker         `envPrefix:"MB_"`
 		Sasl           Sasl           `envPrefix:"SASL_"`
@@ -31,6 +32,14 @@ type (
 	Http struct {
 		Host string `env:"HOST" envDefault:"localhost"`
 		Port uint16 `env:"PORT" envDefault:"8080"`
+	}
+
+	Grpc struct {
+		Host              string `env:"HOST" envDefault:"0.0.0.0"`
+		Port              uint16 `env:"PORT" envDefault:"7003"`
+		MaxConnectionIdle uint16 `env:"MAX_CONNECTION_IDLE" envDefault:"300"`
+		MaxConnectionAge  uint16 `env:"MAX_CONNECTION_AGE" envDefault:"300"`
+		Timeout           uint16 `env:"TIMEOUT" envDefault:"15"`
 	}
 
 	Db struct {

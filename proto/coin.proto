@@ -1,0 +1,75 @@
+syntax = "proto3";
+
+package coins.coin.v1;
+
+option go_package = "pkg/protobuf/coins;coins";
+
+import "google/protobuf/wrappers.proto";
+import "google/protobuf/timestamp.proto";
+import "google/api/annotations.proto";
+import "validate/validate.proto";
+
+// Models
+
+message Coin {
+  // Basis
+  uint64 id = 1;
+  string name = 2;
+  string code = 3;
+  string icon = 4;
+
+  // Additional
+  Info info = 5;
+}
+
+message Info {
+  enum Type {
+    Token = 0;
+    Coin = 1;
+  }
+
+  Type type = 1;
+  bool isActive = 2;
+  bool hasSmartContracts = 3;
+  string platform = 4;
+  string dateStart = 5;
+  uint64 maxSupply = 6;
+  string keyFeatures = 7;
+  string usage = 8;
+  string site = 9;
+  string chat = 10;
+}
+
+// Services
+
+service CoinService {
+  rpc GetCoins (GetCoinsRequest) returns (GetCoinsResponse) {
+    option (google.api.http) = {
+      get: "/coins/list/{page}",
+    };
+  }
+
+  rpc GetCoin (GetCoinRequest) returns (GetCoinResponse) {
+    option (google.api.http) = {
+      get: "/coins/{id}",
+    };
+  }
+}
+
+// GetCoins
+message GetCoinsRequest {
+  uint64 page = 1;
+}
+
+message GetCoinsResponse {
+  repeated Coin coins = 1;
+}
+
+// GetCoin
+message GetCoinRequest {
+  uint64 id = 1 [(validate.rules).uint64.gt = 0];
+}
+
+message GetCoinResponse {
+  Coin coin = 1;
+}

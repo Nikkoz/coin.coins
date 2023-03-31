@@ -4,6 +4,7 @@ import (
 	"coins/internal/domain/coin"
 	"coins/pkg/types/context"
 	"coins/pkg/types/queryParameter"
+	"github.com/Nikkoz/coin.sync/pkg/protobuf/coins"
 	"github.com/confluentinc/confluent-kafka-go/schemaregistry/serde"
 )
 
@@ -19,6 +20,8 @@ type (
 	}
 
 	CoinReader interface {
+		FindByID(ctx context.Context, ID uint) (*coin.Coin, error)
+		FindFullByID(ctx context.Context, ID uint) (*coin.Coin, *coins.Coin, error)
 		List(ctx context.Context, parameter queryParameter.QueryParameter) ([]*coin.Coin, error)
 		Count(ctx context.Context /*Тут можно передавать фильтр*/) (uint64, error)
 	}

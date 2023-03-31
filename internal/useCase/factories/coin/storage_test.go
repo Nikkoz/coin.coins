@@ -90,6 +90,19 @@ func TestUpsertUpdate(t *testing.T) {
 	})
 }
 
+func TestCoinByID(t *testing.T) {
+	assertion := arrangeCoinByID(t)
+
+	t.Run("Get coin by ID", func(t *testing.T) {
+		ctx := context.Empty()
+
+		result, err := factory.FindByID(ctx, mainCoin.ID)
+
+		assertion.NoError(err)
+		assertion.Equal(mainCoin, result)
+	})
+}
+
 func TestList(t *testing.T) {
 	assertion := arrangeList(t)
 
@@ -119,7 +132,7 @@ func TestCount(t *testing.T) {
 func arrangeCreate(t *testing.T) *assert.Assertions {
 	createCoin(nil)
 
-	factory = New(repository, nil, Options{})
+	factory = New(repository, nil, nil, Options{})
 	assertion := assert.New(t)
 
 	repository.
@@ -145,7 +158,7 @@ func arrangeUpdate(t *testing.T) *assert.Assertions {
 	ID := uint(10)
 	createCoin(&ID)
 
-	factory = New(repository, nil, Options{})
+	factory = New(repository, nil, nil, Options{})
 	assertion := assert.New(t)
 
 	repository.
@@ -169,7 +182,7 @@ func arrangeDelete(t *testing.T) *assert.Assertions {
 	ID := uint(10)
 	createCoin(&ID)
 
-	factory = New(repository, nil, Options{})
+	factory = New(repository, nil, nil, Options{})
 	assertion := assert.New(t)
 
 	repository.
@@ -190,7 +203,7 @@ func arrangeDelete(t *testing.T) *assert.Assertions {
 func arrangeUpsertCreate(t *testing.T) *assert.Assertions {
 	createCoin(nil)
 
-	factory = New(repository, nil, Options{})
+	factory = New(repository, nil, nil, Options{})
 	assertion := assert.New(t)
 
 	repository.
@@ -216,7 +229,7 @@ func arrangeUpsertUpdate(t *testing.T) *assert.Assertions {
 	ID := uint(10)
 	createCoin(&ID)
 
-	factory = New(repository, nil, Options{})
+	factory = New(repository, nil, nil, Options{})
 	assertion := assert.New(t)
 
 	repository.
@@ -236,11 +249,35 @@ func arrangeUpsertUpdate(t *testing.T) *assert.Assertions {
 	return assertion
 }
 
+func arrangeCoinByID(t *testing.T) *assert.Assertions {
+	ID := uint(10)
+	createCoin(&ID)
+
+	factory = New(repository, nil, nil, Options{})
+	assertion := assert.New(t)
+
+	repository.
+		On(
+			"CoinByID",
+			mock.Anything,
+			mock.AnythingOfType("uint"),
+		).
+		Return(func(ctx context.Context, ID uint) (*domain.Coin, error) {
+			assertion.Equal(mainCoin.ID, ID)
+
+			return mainCoin, nil
+		}, func(ctx context.Context, ID uint) (*domain.Coin, error) {
+			return nil, nil
+		})
+
+	return assertion
+}
+
 func arrangeList(t *testing.T) *assert.Assertions {
 	ID := uint(10)
 	createCoin(&ID)
 
-	factory = New(repository, nil, Options{})
+	factory = New(repository, nil, nil, Options{})
 	assertion := assert.New(t)
 
 	repository.
@@ -265,7 +302,7 @@ func arrangeCount(t *testing.T) *assert.Assertions {
 	ID := uint(10)
 	createCoin(&ID)
 
-	factory = New(repository, nil, Options{})
+	factory = New(repository, nil, nil, Options{})
 	assertion := assert.New(t)
 
 	repository.

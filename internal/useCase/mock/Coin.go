@@ -96,6 +96,32 @@ func (_m *Coin) Delete(ctx context.Context, ID uint) error {
 	return r0
 }
 
+// FindByID provides a mock function with given fields: ctx, ID
+func (_m *Coin) FindByID(ctx context.Context, ID uint) (*coin.Coin, error) {
+	ret := _m.Called(ctx, ID)
+
+	var r0 *coin.Coin
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, uint) (*coin.Coin, error)); ok {
+		return rf(ctx, ID)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, uint) *coin.Coin); ok {
+		r0 = rf(ctx, ID)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*coin.Coin)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, uint) error); ok {
+		r1 = rf(ctx, ID)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // List provides a mock function with given fields: ctx, parameter
 func (_m *Coin) List(ctx context.Context, parameter queryParameter.QueryParameter) ([]*coin.Coin, error) {
 	ret := _m.Called(ctx, parameter)

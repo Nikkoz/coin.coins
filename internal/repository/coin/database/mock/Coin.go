@@ -16,6 +16,32 @@ type Coin struct {
 	mock.Mock
 }
 
+// CoinByID provides a mock function with given fields: ctx, id
+func (_m *Coin) CoinByID(ctx context.Context, id uint) (*coin.Coin, error) {
+	ret := _m.Called(ctx, id)
+
+	var r0 *coin.Coin
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, uint) (*coin.Coin, error)); ok {
+		return rf(ctx, id)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, uint) *coin.Coin); ok {
+		r0 = rf(ctx, id)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*coin.Coin)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, uint) error); ok {
+		r1 = rf(ctx, id)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // CountCoins provides a mock function with given fields: ctx
 func (_m *Coin) CountCoins(ctx context.Context) (uint64, error) {
 	ret := _m.Called(ctx)
