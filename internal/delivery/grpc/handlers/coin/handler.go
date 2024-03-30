@@ -2,7 +2,7 @@ package coin
 
 import (
 	"coins/internal/domain/coin"
-	useCase "coins/internal/useCase/interfaces"
+	useCase "coins/internal/useCases/interfaces"
 	"coins/pkg/protobuf/coins"
 	"coins/pkg/types/context"
 	"coins/pkg/types/pagination"

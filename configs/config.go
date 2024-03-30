@@ -83,7 +83,7 @@ func New() (*Config, error) {
 
 	err := env.Parse(cfg)
 	if err != nil {
-		return nil, err
+		return cfg, err
 	}
 
 	return cfg, nil

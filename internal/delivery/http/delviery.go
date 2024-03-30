@@ -2,9 +2,9 @@ package http
 
 import (
 	"coins/configs"
-	coinHandler "coins/internal/delivery/http/coin"
-	urlHandler "coins/internal/delivery/http/url"
-	useCase "coins/internal/useCase/interfaces"
+	coinHandler "coins/internal/delivery/http/handlers/coin"
+	urlHandler "coins/internal/delivery/http/handlers/url"
+	useCase "coins/internal/useCases/interfaces"
 	"fmt"
 	"github.com/gin-gonic/gin"
 )

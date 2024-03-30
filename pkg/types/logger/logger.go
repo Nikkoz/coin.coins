@@ -1,7 +1,6 @@
 package logger
 
 import (
-	"coins/configs"
 	"coins/pkg/types/context"
 	"fmt"
 	"go.uber.org/zap"
@@ -37,8 +36,8 @@ func new(isProduction bool, l string) (*Logger, error) {
 	return log, nil
 }
 
-func NewLogger(cfg configs.Config) (*Logger, error) {
-	return new(cfg)
+func NewLogger(isProduction bool, l string) (*Logger, error) {
+	return new(isProduction, l)
 }
 
 func level(level string) zapcore.Level {

@@ -2,28 +2,18 @@ package app
 
 import (
 	"coins/configs"
-	messageBroker "coins/internal/delivery/broker"
-	"coins/internal/delivery/grpc"
-	deliveryHttp "coins/internal/delivery/http"
-	repositoryBroker "coins/internal/repository/coin/broker"
-	repositoryCoin "coins/internal/repository/coin/database"
-	repositoryGrpc "coins/internal/repository/coin/grpc"
-	repositoryUrl "coins/internal/repository/url/database"
-	coinFactory "coins/internal/useCase/factories/coin"
-	urlFactory "coins/internal/useCase/factories/url"
-	grpcClient "coins/pkg/grpc"
+	"coins/internal/providers"
 	"coins/pkg/types/context"
 	"coins/pkg/types/logger"
 	"fmt"
 	"github.com/joho/godotenv"
-	"github.com/pkg/errors"
 	"log"
 	"os"
 	"os/signal"
 	"syscall"
 )
 
-var config *configs.Config
+var config configs.Config
 
 func init() {
 	envInit()
@@ -36,37 +26,29 @@ func Run() {
 
 	logger.New(config.App.Environment.IsProduction(), config.Log.Level.String())
 
+	// @todo: think about move to service providers
 	conn, conClose := connectionDB()
 	defer conClose()
 
 	migrate(conn)
 
-	broker := ConnectionBroker()
-	defer broker.Close()
+	provider := providers.New(ctx, config, conn)
+	defer provider.Broker.Close()
 
-	grpcConn, err := grpcClient.New(ctx, config.Grpc.Host, config.Grpc.Port, config.App.Name, config.App.Version).GetConnection()
-	if err != nil {
-		_ = logger.ErrorWithContext(ctx, errors.Wrap(err, "failed to create grpc client"))
-
+	if provider.Grpc == nil {
 		return
 	}
 
 	var (
-		repoUrl      = repositoryUrl.New(conn, repositoryUrl.Options{})
-		repoCoin     = repositoryCoin.New(conn, repoUrl, repositoryCoin.Options{})
-		repoBroker   = repositoryBroker.New(broker, repositoryBroker.Options{})
-		repoGrpc     = repositoryGrpc.New(grpcConn, repositoryGrpc.Options{})
-		fCoin        = coinFactory.New(repoCoin, repoBroker, repoGrpc, coinFactory.Options{})
-		fUrl         = urlFactory.New(repoUrl, urlFactory.Options{})
-		messenger    = messageBroker.New(fCoin, fUrl, messageBroker.Options{})
-		listenerHttp = deliveryHttp.New(fCoin, fUrl, deliveryHttp.Options{})
-		listenerGrpc = grpc.New(fCoin, grpc.Options{BrokerTopic: config.Broker.Topics[0]})
+		messenger = provider.Delivery.Messenger
+		http      = provider.Delivery.Http
+		grpc      = provider.Delivery.Grpc
 	)
 
-	messenger.Run(broker, config.Broker.Topics)
-	listenerHttp.Run(*config)
+	messenger.Run(provider.Broker, config.Broker.Topics)
+	http.Run(config)
 
-	grpcServer, listener := listenerGrpc.Run(config)
+	grpcServer, listener := grpc.Run(config)
 	if grpcServer == nil {
 		return
 	}
@@ -78,11 +60,11 @@ func Run() {
 	select {
 	case s := <-interrupt:
 		logger.Info("app - Run - signal: " + s.String())
-	case err := <-listenerHttp.Notify():
+	case err := <-http.Notify():
 		logger.Error(fmt.Errorf("app - Run http server: %v", err))
 	case err := <-messenger.Notify():
 		logger.Error(fmt.Errorf("app - Run msg brocker: %v", err))
-	case err := <-listenerGrpc.Notify():
+	case err := <-grpc.Notify():
 		logger.Fatal(fmt.Errorf("app - Run grpc server: %v", err))
 	case done := <-ctx.Done():
 		logger.Info(fmt.Sprintf("app - Run - ctx.Done: %v", done))
@@ -102,5 +84,5 @@ func configInit() {
 		log.Fatalf("unable to parse ennvironment variables: %e", err)
 	}
 
-	config = cfg
+	config = *cfg
 }

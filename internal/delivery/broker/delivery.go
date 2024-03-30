@@ -1,7 +1,7 @@
 package broker
 
 import (
-	useCase "coins/internal/useCase/interfaces"
+	useCase "coins/internal/useCases/interfaces"
 	"coins/pkg/store/messageBroker"
 	"coins/pkg/types/context"
 	"coins/pkg/types/logger"

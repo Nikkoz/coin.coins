@@ -3,7 +3,7 @@ package grpc
 import (
 	"coins/configs"
 	coinHandler "coins/internal/delivery/grpc/handlers/coin"
-	"coins/internal/useCase/interfaces"
+	"coins/internal/useCases/interfaces"
 	"coins/pkg/protobuf/coins"
 	"coins/pkg/types/logger"
 	"flag"
@@ -61,7 +61,7 @@ func (d *Delivery) setHandlers(ucCoin interfaces.Coin) {
 	}
 }
 
-func (d *Delivery) Run(config *configs.Config) (*grpc.Server, net.Listener) {
+func (d *Delivery) Run(config configs.Config) (*grpc.Server, net.Listener) {
 	flag.Parse()
 
 	grpcAddr := fmt.Sprintf("%s:%v", config.Grpc.Host, config.Grpc.Port)
